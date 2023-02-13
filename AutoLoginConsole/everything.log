@@ -1,0 +1,162 @@
+
+
+
+
+
+arguments: D:\\code_project\\FF_Auto80\\Debug\\AutoLoginConsole.exe
+Current dir: D:\code_project\FF_Auto80\AutoLoginConsole
+File verbosity level: 9
+date       time         ( uptime  ) [ thread name/id ]                   file:line     v| 
+2023-02-09 08:01:17.646 (   0.123s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'everything.log', mode: 'a', verbosity: 9
+2023-02-09 08:01:17.647 (   0.123s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'latest_readable.log', mode: 'w', verbosity: 0
+2023-02-09 08:01:17.647 (   0.123s) [main thread     ]   AutoLoginConsole.cpp:24    INFO| Hello World!
+
+
+
+
+
+arguments: D:\\code_project\\FF_Auto80\\Debug\\AutoLoginConsole.exe
+Current dir: D:\code_project\FF_Auto80\AutoLoginConsole
+File verbosity level: 9
+date       time         ( uptime  ) [ thread name/id ]                   file:line     v| 
+2023-02-09 08:50:15.331 (   5.797s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'everything.log', mode: 'a', verbosity: 9
+2023-02-09 08:50:15.331 (   5.797s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'latest_readable.log', mode: 'w', verbosity: 0
+2023-02-09 08:50:15.331 (   5.798s) [main thread     ]   AutoLoginConsole.cpp:146   INFO| 开始运行
+
+
+
+
+
+arguments: D:\\code_project\\FF_Auto80\\Debug\\AutoLoginConsole.exe
+Current dir: D:\code_project\FF_Auto80\AutoLoginConsole
+File verbosity level: 9
+date       time         ( uptime  ) [ thread name/id ]                   file:line     v| 
+2023-02-09 08:57:37.541 (   3.319s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'everything.log', mode: 'a', verbosity: 9
+2023-02-09 08:57:37.541 (   3.320s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'latest_readable.log', mode: 'w', verbosity: 0
+2023-02-09 08:57:37.541 (   3.320s) [main thread     ]   AutoLoginConsole.cpp:146   INFO| 开始运行
+
+
+
+
+
+arguments: D:\\code_project\\FF_Auto80\\Debug\\AutoLoginConsole.exe
+Current dir: D:\code_project\FF_Auto80\AutoLoginConsole
+File verbosity level: 9
+date       time         ( uptime  ) [ thread name/id ]                   file:line     v| 
+2023-02-09 09:02:19.232 (   0.129s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'everything.log', mode: 'a', verbosity: 9
+2023-02-09 09:02:19.232 (   0.129s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'latest_readable.log', mode: 'w', verbosity: 0
+2023-02-09 09:02:19.232 (   0.129s) [main thread     ]   AutoLoginConsole.cpp:146   INFO| 开始运行
+
+
+
+
+
+arguments: D:\\code_project\\FF_Auto80\\Debug\\AutoLoginConsole.exe
+Current dir: D:\code_project\FF_Auto80\AutoLoginConsole
+File verbosity level: 9
+date       time         ( uptime  ) [ thread name/id ]                   file:line     v| 
+2023-02-09 09:02:51.933 (   0.186s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'everything.log', mode: 'a', verbosity: 9
+2023-02-09 09:02:51.933 (   0.186s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'latest_readable.log', mode: 'w', verbosity: 0
+2023-02-09 09:02:51.934 (   0.186s) [main thread     ]   AutoLoginConsole.cpp:146   INFO| 开始运行
+
+
+
+
+
+arguments: D:\\code_project\\FF_Auto80\\Debug\\AutoLoginConsole.exe
+Current dir: D:\code_project\FF_Auto80\AutoLoginConsole
+File verbosity level: 9
+date       time         ( uptime  ) [ thread name/id ]                   file:line     v| 
+2023-02-09 09:03:44.719 (   0.128s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'everything.log', mode: 'a', verbosity: 9
+2023-02-09 09:03:44.720 (   0.129s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'latest_readable.log', mode: 'w', verbosity: 0
+2023-02-09 09:03:44.720 (   0.129s) [main thread     ]   AutoLoginConsole.cpp:146   INFO| 开始运行
+
+
+
+
+
+arguments: D:\\code_project\\FF_Auto80\\Debug\\AutoLoginConsole.exe
+Current dir: D:\code_project\FF_Auto80\AutoLoginConsole
+File verbosity level: 9
+date       time         ( uptime  ) [ thread name/id ]                   file:line     v| 
+2023-02-09 09:04:27.535 (   0.118s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'everything.log', mode: 'a', verbosity: 9
+2023-02-09 09:04:27.535 (   0.119s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'latest_readable.log', mode: 'w', verbosity: 0
+2023-02-09 09:04:27.536 (   0.119s) [main thread     ]   AutoLoginConsole.cpp:146   INFO| 开始运行
+
+
+
+
+
+arguments: D:\\code_project\\FF_Auto80\\Debug\\AutoLoginConsole.exe
+Current dir: D:\code_project\FF_Auto80\AutoLoginConsole
+File verbosity level: 9
+date       time         ( uptime  ) [ thread name/id ]                   file:line     v| 
+2023-02-09 09:04:43.893 (   0.311s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'everything.log', mode: 'a', verbosity: 9
+2023-02-09 09:04:43.893 (   0.312s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'latest_readable.log', mode: 'w', verbosity: 0
+2023-02-09 09:04:43.893 (   0.312s) [main thread     ]   AutoLoginConsole.cpp:146   INFO| 开始运行
+
+
+
+
+
+arguments: D:\\code_project\\FF_Auto80\\Debug\\AutoLoginConsole.exe
+Current dir: D:\code_project\FF_Auto80\AutoLoginConsole
+File verbosity level: 9
+date       time         ( uptime  ) [ thread name/id ]                   file:line     v| 
+2023-02-09 09:04:57.278 (   0.186s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'everything.log', mode: 'a', verbosity: 9
+2023-02-09 09:04:57.278 (   0.186s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'latest_readable.log', mode: 'w', verbosity: 0
+2023-02-09 09:04:57.278 (   0.186s) [main thread     ]   AutoLoginConsole.cpp:146   INFO| 开始运行
+
+
+
+
+
+arguments: D:\\code_project\\FF_Auto80\\Debug\\AutoLoginConsole.exe
+Current dir: D:\code_project\FF_Auto80\AutoLoginConsole
+File verbosity level: 9
+date       time         ( uptime  ) [ thread name/id ]                   file:line     v| 
+2023-02-09 09:08:20.317 (   0.124s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'everything.log', mode: 'a', verbosity: 9
+2023-02-09 09:08:20.317 (   0.125s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'latest_readable.log', mode: 'w', verbosity: 0
+2023-02-09 09:08:20.317 (   0.125s) [main thread     ]   AutoLoginConsole.cpp:146   INFO| 开始运行
+
+
+
+
+
+arguments: D:\\code_project\\FF_Auto80\\Debug\\AutoLoginConsole.exe
+Current dir: D:\code_project\FF_Auto80\AutoLoginConsole
+File verbosity level: 9
+date       time         ( uptime  ) [ thread name/id ]                   file:line     v| 
+2023-02-09 09:10:14.137 (   0.190s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'everything.log', mode: 'a', verbosity: 9
+2023-02-09 09:10:14.137 (   0.190s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'latest_readable.log', mode: 'w', verbosity: 0
+2023-02-09 09:10:14.137 (   0.190s) [main thread     ]   AutoLoginConsole.cpp:146   INFO| 开始运行
+
+
+
+
+
+arguments: D:\\code_project\\FF_Auto80\\Debug\\AutoLoginConsole.exe
+Current dir: D:\code_project\FF_Auto80\AutoLoginConsole
+File verbosity level: 9
+date       time         ( uptime  ) [ thread name/id ]                   file:line     v| 
+2023-02-09 09:42:27.557 (   0.058s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'everything.log', mode: 'a', verbosity: 9
+2023-02-09 09:42:27.557 (   0.059s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'latest_readable.log', mode: 'w', verbosity: 0
+2023-02-09 09:42:27.557 (   0.059s) [main thread     ]   AutoLoginConsole.cpp:146   INFO| 开始运行
+2023-02-09 09:42:27.560 (   0.061s) [main thread     ]   AutoLoginConsole.cpp:173   INFO| 修改原始配置
+2023-02-09 09:42:32.576 (   5.077s) [main thread     ]   AutoLoginConsole.cpp:184    ERR| 系统找不到指定的文件。
+
+2023-02-09 09:42:32.576 (   5.077s) [main thread     ]   AutoLoginConsole.cpp:185    ERR| 进程启动失败
+2023-02-09 09:42:32.577 (   5.078s) [main thread     ]             loguru.cpp:538   INFO| atexit
+
+
+
+
+
+arguments: D:\\code_project\\FF_Auto80\\Debug\\AutoLoginConsole.exe
+Current dir: D:\code_project\FF_Auto80\AutoLoginConsole
+File verbosity level: 9
+date       time         ( uptime  ) [ thread name/id ]                   file:line     v| 
+2023-02-11 15:38:57.476 (   0.185s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'everything.log', mode: 'a', verbosity: 9
+2023-02-11 15:38:57.477 (   0.185s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'latest_readable.log', mode: 'w', verbosity: 0
+2023-02-11 15:38:57.477 (   0.185s) [main thread     ]   AutoLoginConsole.cpp:146   INFO| 开始运行
+2023-02-11 15:38:57.593 (   0.301s) [main thread     ]   AutoLoginConsole.cpp:148   INFO| 清理进程

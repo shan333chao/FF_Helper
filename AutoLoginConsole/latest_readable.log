@@ -1,0 +1,7 @@
+arguments: D:\\code_project\\FF_Auto80\\Debug\\AutoLoginConsole.exe
+Current dir: D:\code_project\FF_Auto80\AutoLoginConsole
+File verbosity level: 0
+date       time         ( uptime  ) [ thread name/id ]                   file:line     v| 
+2023-02-11 15:38:57.477 (   0.185s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'latest_readable.log', mode: 'w', verbosity: 0
+2023-02-11 15:38:57.477 (   0.185s) [main thread     ]   AutoLoginConsole.cpp:146   INFO| 开始运行
+2023-02-11 15:38:57.593 (   0.301s) [main thread     ]   AutoLoginConsole.cpp:148   INFO| 清理进程
