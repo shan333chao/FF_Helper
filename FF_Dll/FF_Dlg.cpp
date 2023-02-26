@@ -20,9 +20,9 @@
 #endif
 #include "SignaturesCodeTool.h"
 #include "SignaturesDataSingleton.h"
+#include "CInlineHook.h"
 
-
-
+#define WM_UPDATEDATA 0x70029
 // FF_Dlg 对话框
 
 IMPLEMENT_DYNAMIC(FF_Dlg, CDialogEx)
@@ -82,7 +82,8 @@ DWORD dw_TEAM_LEVEL = SignaturesDataSingleton::getInstance().GetAddressByKey("TE
 
 
 
-
+DWORD pindex;
+DWORD send_control;
 
 FF_Dlg::FF_Dlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_DIALOG_FF, pParent)
@@ -227,6 +228,8 @@ void FF_Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CHECK_TEAM_LUCKY, m_checkbox_team_luck);
 	DDX_Control(pDX, IDC_CHECK_TEAMWORK, m_checkbox_team_work);
 	DDX_Control(pDX, IDC_CHECK_KUANG, m_checkbox_caikuang);
+	DDX_Control(pDX, IDC_LIST_Sends, m_ListCtrl_sends);
+	DDX_Control(pDX, IDC_EDIT_Buffers, m_edit_buffers);
 }
 
 
@@ -268,6 +271,11 @@ BEGIN_MESSAGE_MAP(FF_Dlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_TEST, &FF_Dlg::OnBnClickedButtonTest)
 	ON_BN_CLICKED(IDC_BUTTON_GET_KUANG, &FF_Dlg::OnBnClickedButtonGetKuang)
 	ON_BN_CLICKED(IDC_CHECK_KUANG, &FF_Dlg::OnBnClickedCheckKuang)
+	ON_BN_CLICKED(IDC_BUTTON_HOOK, &FF_Dlg::OnBnClickedButtonHook)
+	ON_BN_CLICKED(IDC_BUTTON_STOP, &FF_Dlg::OnBnClickedButtonStop)
+	ON_BN_CLICKED(IDC_BUTTON_CLEAR, &FF_Dlg::OnBnClickedButtonClear)
+	ON_NOTIFY(NM_DBLCLK, IDC_LIST_Sends, &FF_Dlg::OnNMDblclkListSends)
+	ON_BN_CLICKED(IDC_BUTTON_SEND, &FF_Dlg::OnBnClickedButtonSend)
 END_MESSAGE_MAP()
 
 
@@ -439,6 +447,8 @@ void FF_Dlg::OnTimer(UINT_PTR nIDEvent)
 
 void FF_Dlg::OnClose()
 {
+
+	send_control = false;
 	this, m_checkbox_gmstatus.SetCheck(0x0);
 	OnBnClickedCheckGmonline();
 	CDialogEx::OnClose();
@@ -1025,7 +1035,11 @@ BOOL FF_Dlg::OnInitDialog()
 		DWORD jobType = this->player_instance->GetJobType();
 		std::vector<std::pair<CString, DWORD> > current = jobMap.at(jobType);
 		this->m_combox_skills.ResetContent();
-
+		m_ListCtrl_sends.InsertColumn(0, _T("index"), LVCFMT_LEFT, 40);
+		m_ListCtrl_sends.InsertColumn(1, _T("len"), LVCFMT_LEFT, 40);
+		m_ListCtrl_sends.InsertColumn(2, _T("content"), LVCFMT_LEFT, 190);
+		m_ListCtrl_sends.InsertColumn(3, _T("calladdr"), LVCFMT_LEFT, 90);
+		m_ListCtrl_sends.SetExtendedStyle(LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT);
 		for (auto item : current)
 		{
 			this->m_combox_skills.AddString(item.first);
@@ -1033,15 +1047,17 @@ BOOL FF_Dlg::OnInitDialog()
 		this->m_combox_skills.SetCurSel(3);
 		SetTimer(AUTO_REFRESH_INFO, 300, NULL);
 
+
+
 	}
 	else {
 		AddLog(L"请选择角色后 重新启动 外挂");
-		CWnd* pwndctrl = GetDlgItem(IDC_CHECK_AutoHpMpFp);
-		for (int i = 0; i < 99 && pwndctrl != NULL; i++)
-		{
-			pwndctrl->EnableWindow(FALSE);
-			pwndctrl = GetNextDlgTabItem(pwndctrl);
-		}
+		//CWnd* pwndctrl = GetDlgItem(IDC_CHECK_AutoHpMpFp);
+		//for (int i = 0; i < 99 && pwndctrl != NULL; i++)
+		//{
+		//	pwndctrl->EnableWindow(FALSE);
+		//	pwndctrl = GetNextDlgTabItem(pwndctrl);
+		//}
 	}
 
 
@@ -1531,7 +1547,7 @@ void FF_Dlg::OnBnClickedButtonGetKuang()
 		picked = this->surround->PickMonster(lingshou);
 		Sleep(1000);
 		this->UseWeapon(5, 183);
-		Sleep(1000); 
+		Sleep(1000);
 		this->pkg->QuickUse(6);
 		Sleep(1000);
 		picked = this->surround->GetPicked();
@@ -1568,6 +1584,8 @@ void FF_Dlg::UseWeapon(DWORD useIndex, DWORD packageIndex)
 }
 
 
+
+
 void FF_Dlg::OnBnClickedCheckKuang()
 {
 	if (this->m_checkbox_caikuang.GetCheck() == BST_CHECKED)
@@ -1580,4 +1598,185 @@ void FF_Dlg::OnBnClickedCheckKuang()
 		AddLog(L"停止自动采矿");
 		KillTimer(AUTO_CAI_KUANG);
 	}
+}
+
+
+
+
+DWORD methodAddrBase;
+DWORD oldAddress;
+DWORD content;
+DWORD len;
+DWORD flags;
+DWORD callAddr;
+DWORD go_on1 = 0x005DBED1;
+DWORD go_on2 = 0x005DBEB8;
+_declspec(naked)  void MyJmp() {
+
+
+	__asm {
+
+		pushad
+		pushfd
+
+		cmp dword ptr ds : [ecx + 0x4] , 0x0
+		je A
+
+		mov edx, [ecx + 0x4]
+		mov edx, [edx]
+		mov edx, [edx + 0x28]
+		mov callAddr, edx
+		lea eax, [esp + 0x24]
+		mov ebx, [eax + 0x4] //包内容
+		mov ecx, [eax + 0x8] //包长
+		mov len, ecx
+		push ecx
+		push ebx
+		push content
+		call memmove
+		add esp, 0xc
+		A:
+			popfd
+			popad
+
+
+
+		cmp dword ptr ds : [ecx + 0x4] , 0x0
+		je case2
+		mov flags, 1
+
+		case1 :
+			jmp go_on2
+		case2 :
+			jmp go_on1
+
+
+
+	}
+
+
+
+}
+
+static UINT SendMsgThread(LPVOID lparam) {
+	FF_Dlg* m_ff_Dlg = (FF_Dlg*)lparam;
+	CString cs_info;
+	CString cs_content;
+	CString cs_buffer;
+	while (send_control)
+	{
+		if (flags)
+		{
+			if (len == 0)
+			{
+				continue;
+			}
+			cs_info.Format(_T("%d"), pindex);
+			m_ff_Dlg->m_ListCtrl_sends.InsertItem(pindex, cs_info);
+			cs_info.Format(_T("%x"), len);
+			m_ff_Dlg->m_ListCtrl_sends.SetItemText(pindex, 1, cs_info);
+			for (size_t i = 0; i < len; i++)
+			{
+				cs_buffer.Format(_T("%02x"), ((PBYTE)content)[i]);
+				cs_content += cs_buffer;
+			}
+			m_ff_Dlg->m_ListCtrl_sends.SetItemText(pindex, 2, cs_content);
+			cs_info.Format(_T("%08x"), callAddr);
+			m_ff_Dlg->m_ListCtrl_sends.SetItemText(pindex, 3, cs_info);
+			pindex++;
+
+			m_ff_Dlg->m_ListCtrl_sends.PostMessageW(WM_UPDATEDATA, FALSE, NULL);
+			m_ff_Dlg->m_ListCtrl_sends.PostMessageW(WM_VSCROLL, SB_BOTTOM, 0);
+			//PostMessage(m_ff_Dlg->m_hWnd, WM_UPDATEDATA, FALSE, NULL);
+			flags = 0;
+			cs_content = "";
+		}
+
+
+	}
+	return true;
+
+
+}
+CInlineHook inlinehook;
+void FF_Dlg::OnBnClickedButtonHook()
+{
+	DWORD dw_old;
+	content = (DWORD)VirtualAlloc(NULL, 0x1000, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+	if (!content)
+	{
+		return;
+	}
+	bool hookRet = inlinehook.Hook((FARPROC)0x005DBEB2, (FARPROC)MyJmp);
+	if (!hookRet)
+	{
+		AddLog(L"hook failed");
+		return;
+	}
+	CWinThread* pthread;
+	send_control = true;
+	pthread = AfxBeginThread(SendMsgThread, this);
+	AddLog(L"hook start");
+}
+
+
+void FF_Dlg::OnBnClickedButtonStop()
+{
+	send_control = false;
+	flags = 0;
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+
+void FF_Dlg::OnBnClickedButtonClear()
+{
+	pindex = 0;
+	m_ListCtrl_sends.DeleteAllItems();
+
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+
+void FF_Dlg::OnNMDblclkListSends(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	// TODO: 在此添加控件通知处理程序代码
+	int nIndex = m_ListCtrl_sends.GetSelectionMark();   //获取选中行的行号
+
+	CString byteStr = m_ListCtrl_sends.GetItemText(nIndex, 2);
+	m_edit_buffers.SetWindowTextW(byteStr);
+	*pResult = 0;
+}
+
+
+void FF_Dlg::OnBnClickedButtonSend()
+{
+	CString  str_content;
+
+	m_edit_buffers.GetWindowTextW(str_content);
+	std::string hex_str= CT2A(str_content.GetString());  
+	BYTE Bytes[0x1000]{};
+	DWORD ByteLength = hex_str.length() / 2;
+	std::string  str_buffer{};
+	for (size_t i = 0; i < ByteLength; i++)
+	{
+		str_buffer = hex_str.substr(i*2,2);
+		sscanf_s(str_buffer.c_str(),"%x",&(Bytes[i]));
+	}
+	DWORD  pStart = (DWORD)&Bytes;
+	__asm {
+		pushad
+		pushfd
+		push 0x1
+		push ByteLength
+		push pStart
+		mov ecx, 0x0084D078
+		mov ecx,[ecx+0x4]
+		mov eax, 0x005DBEB2
+		call eax
+		popfd
+		popad
+ 
+	}
+	// TODO: 在此添加控件通知处理程序代码
 }

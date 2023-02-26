@@ -31,6 +31,18 @@
 //移动速度
 #define PLAY_OFFSET_MOVE_SPEED 0x12f4
 
+//跳跃等级
+#define PLAY_OFFSET_JUMP_LVL 0x13d8
+
+//释放速度
+#define PLAY_OFFSET_JUMP_LVL 0x13f4
+
+//释放距离
+#define PLAY_OFFSET_JUMP_LVL 0x1430
+//攻击速度
+#define PLAY_OFFSET_JUMP_LVL 0x1328
+
+
 //逆手
 #define PLAY_OFFSET_NISHOU_ID 0x4dc
 //风轮

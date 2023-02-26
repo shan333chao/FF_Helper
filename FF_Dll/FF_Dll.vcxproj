@@ -185,6 +185,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CInlineHook.cpp" />
     <ClCompile Include="FF_Dlg.cpp" />
     <ClCompile Include="FF_Dll.cpp" />
     <ClCompile Include="Package.cpp" />
@@ -200,10 +201,12 @@
     <ClCompile Include="Surround.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="cpp.hint" />
     <None Include="FF_Dll.def" />
     <None Include="res\FF_Dll.rc2" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CInlineHook.h" />
     <ClInclude Include="FF_Dlg.h" />
     <ClInclude Include="FF_Dll.h" />
     <ClInclude Include="ff_offset.h" />

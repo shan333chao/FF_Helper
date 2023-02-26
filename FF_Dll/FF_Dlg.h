@@ -110,5 +110,16 @@ public:
 	void UseWeapon(DWORD useIndex,DWORD packageIndex);
 	CButton m_checkbox_caikuang;
 	afx_msg void OnBnClickedCheckKuang();
+	void SetThreadHook(HANDLE hThread);
+	void SetHook();
+ 
+ 
+	afx_msg void OnBnClickedButtonHook();
+	CListCtrl m_ListCtrl_sends;
+	afx_msg void OnBnClickedButtonStop();
+	afx_msg void OnBnClickedButtonClear();
+	afx_msg void OnNMDblclkListSends(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnBnClickedButtonSend();
+	CEdit m_edit_buffers;
 };
 extern FF_Dlg* ff_Dlg;

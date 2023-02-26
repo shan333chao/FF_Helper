@@ -39,6 +39,9 @@
     <ClCompile Include="SignaturesDataSingleton.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="CInlineHook.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="FF_Dll.def">
@@ -47,6 +50,7 @@
     <None Include="res\FF_Dll.rc2">
       <Filter>资源文件</Filter>
     </None>
+    <None Include="cpp.hint" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -89,6 +93,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="SignaturesDataSingleton.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CInlineHook.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
