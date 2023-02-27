@@ -116,10 +116,18 @@ public:
  
 	afx_msg void OnBnClickedButtonHook();
 	CListCtrl m_ListCtrl_sends;
-	afx_msg void OnBnClickedButtonStop();
+ 
 	afx_msg void OnBnClickedButtonClear();
 	afx_msg void OnNMDblclkListSends(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnBnClickedButtonSend();
 	CEdit m_edit_buffers;
+	CButton m_checkbox_hook_atk;
+//	afx_msg void OnEnChangeEditBuffers();
+ 
+	afx_msg void OnBnClickedButtonFilter();
+	CEdit m_edit_filter_len;
+	CButton m_checkbox_start_stop;
+	afx_msg void OnBnClickedCheckOpenStart();
+	afx_msg void OnBnClickedButtonUnhook();
 };
 extern FF_Dlg* ff_Dlg;

@@ -158,3 +158,38 @@ DWORD Surround::PickItem(DWORD itemObj,DWORD playerObj)
 
 
 
+DWORD Surround::PickItem2(DWORD itemObj, DWORD playerObj)
+{
+
+	//远程拾取
+
+	//50 B9 ?? ?? ?? ?? E8 ?? ?? ?? ?? BE ?? ?? ?? ?? 85 C0 74 10 83 B8 ?? ?? ?? ?? 00 74 07 8B CE E8 ?? ?? ?? ?? D9 45 ?? 51 D9 1C 24 57 8B CE E8 ?? ?? ?? ?? 
+	if (itemObj == NULL)
+	{
+		return 0;
+	}
+	DWORD itemSig = *(PDWORD)(itemObj + 0x2f0);
+	DWORD result = 0;
+	DWORD local_dw_PICK_REMOTE_PARAM1 = dw_PICK_REMOTE_PARAM1;
+	DWORD local_dw_PICK_REMOTE1_CALL = dw_PICK_REMOTE1_CALL;
+	DWORD local_dw_PICK_REMOTE2_PARAM2 = dw_PICK_REMOTE2_PARAM2;
+	DWORD local_dw_PICK_REMOTE2_CALL = dw_PICK_REMOTE2_CALL;
+ 
+	__asm {
+		pushad
+		pushfd
+		push 0x0
+		mov ecx, local_dw_PICK_REMOTE_PARAM1
+		mov eax, local_dw_PICK_REMOTE1_CALL
+		call eax
+		mov esi, local_dw_PICK_REMOTE2_PARAM2
+		push ecx
+		push itemSig
+		mov ecx,esi
+		mov eax, local_dw_PICK_REMOTE2_CALL
+		call eax
+		popfd
+		popad
+	}
+	return result;
+}

@@ -57,11 +57,13 @@
 #define IDC_BUTTON_HOOK                 1052
 #define IDC_LIST_Sends                  1053
 #define IDC_BUTTON_UNHOOK               1054
-#define IDC_EDIT1                       1055
 #define IDC_EDIT_Buffers                1055
 #define IDC_BUTTON_SEND                 1056
-#define IDC_BUTTON_STOP                 1057
 #define IDC_BUTTON_CLEAR                1058
+#define IDC_CHECK_HOOK_ATK              1059
+#define IDC_EDIT_Len                    1061
+#define IDC_BUTTON_FILTER               1062
+#define IDC_CHECK_OPEN_START            1064
 
 // Next default values for new objects
 // 
@@ -69,7 +71,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        1002
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1059
+#define _APS_NEXT_CONTROL_VALUE         1065
 #define _APS_NEXT_SYMED_VALUE           1000
 #endif
 #endif

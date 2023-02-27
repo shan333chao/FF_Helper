@@ -80,11 +80,22 @@ DWORD dw_TEAM_BUFF_BASE = SignaturesDataSingleton::getInstance().GetAddressByKey
 DWORD dw_TEAM_POINT = SignaturesDataSingleton::getInstance().GetAddressByKey("TEAM_POINT");
 DWORD dw_TEAM_LEVEL = SignaturesDataSingleton::getInstance().GetAddressByKey("TEAM_LEVEL");
 
-
-
+DWORD dw_SKILL_REMOTE_PARAM1 = SignaturesDataSingleton::getInstance().GetAddressByKey("SKILL_REMOTE_PARAM1");
+DWORD dw_SKILL_REMOTE_CALL = SignaturesDataSingleton::getInstance().GetAddressByKey("SKILL_REMOTE_CALL");
+DWORD dw_SOCKET_SEND_PARAM1 = SignaturesDataSingleton::getInstance().GetAddressByKey("SOCKET_SEND_PARAM1");
+DWORD dw_SOCKET_SEND_CALL = SignaturesDataSingleton::getInstance().GetAddressByKey("SOCKET_SEND_CALL");
+CInlineHook inlinehook;
+CWinThread* pthread;
 DWORD pindex;
 DWORD send_control;
-
+DWORD filter_len = 0;
+DWORD methodAddrBase = dw_SOCKET_SEND_CALL;
+DWORD content;
+DWORD len;
+DWORD flags;
+DWORD callAddr;
+DWORD go_on1 = methodAddrBase + 0x1F;
+DWORD go_on2 = methodAddrBase + 0x6;
 FF_Dlg::FF_Dlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_DIALOG_FF, pParent)
 
@@ -230,6 +241,9 @@ void FF_Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CHECK_KUANG, m_checkbox_caikuang);
 	DDX_Control(pDX, IDC_LIST_Sends, m_ListCtrl_sends);
 	DDX_Control(pDX, IDC_EDIT_Buffers, m_edit_buffers);
+	DDX_Control(pDX, IDC_CHECK_HOOK_ATK, m_checkbox_hook_atk);
+	DDX_Control(pDX, IDC_EDIT_Len, m_edit_filter_len);
+	DDX_Control(pDX, IDC_CHECK_OPEN_START, m_checkbox_start_stop);
 }
 
 
@@ -272,10 +286,13 @@ BEGIN_MESSAGE_MAP(FF_Dlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_GET_KUANG, &FF_Dlg::OnBnClickedButtonGetKuang)
 	ON_BN_CLICKED(IDC_CHECK_KUANG, &FF_Dlg::OnBnClickedCheckKuang)
 	ON_BN_CLICKED(IDC_BUTTON_HOOK, &FF_Dlg::OnBnClickedButtonHook)
-	ON_BN_CLICKED(IDC_BUTTON_STOP, &FF_Dlg::OnBnClickedButtonStop)
 	ON_BN_CLICKED(IDC_BUTTON_CLEAR, &FF_Dlg::OnBnClickedButtonClear)
 	ON_NOTIFY(NM_DBLCLK, IDC_LIST_Sends, &FF_Dlg::OnNMDblclkListSends)
 	ON_BN_CLICKED(IDC_BUTTON_SEND, &FF_Dlg::OnBnClickedButtonSend)
+	//	ON_EN_CHANGE(IDC_EDIT_Buffers, &FF_Dlg::OnEnChangeEditBuffers)
+	ON_BN_CLICKED(IDC_BUTTON_FILTER, &FF_Dlg::OnBnClickedButtonFilter)
+	ON_BN_CLICKED(IDC_CHECK_OPEN_START, &FF_Dlg::OnBnClickedCheckOpenStart)
+	ON_BN_CLICKED(IDC_BUTTON_UNHOOK, &FF_Dlg::OnBnClickedButtonUnhook)
 END_MESSAGE_MAP()
 
 
@@ -448,8 +465,9 @@ void FF_Dlg::OnTimer(UINT_PTR nIDEvent)
 void FF_Dlg::OnClose()
 {
 
-	send_control = false;
+
 	this, m_checkbox_gmstatus.SetCheck(0x0);
+	OnBnClickedButtonUnhook();
 	OnBnClickedCheckGmonline();
 	CDialogEx::OnClose();
 }
@@ -601,11 +619,11 @@ void FF_Dlg::OnBnClickedButtonAtk()
 		return;
 	}
 	DWORD picked = this->surround->GetPicked();
-
+	DWORD targetMonster = 0;
 	if (this->m_check_common_atk.GetCheck() != BST_CHECKED && picked <= 0)
 	{
 
-		DWORD targetMonster = this->surround->GetCloseToMonster(this->m_edit_monster_lvl);
+		targetMonster = this->surround->GetCloseToMonster(this->m_edit_monster_lvl);
 		DWORD baseSurroundExt = *(PDWORD)(dw_PICK_TARGET_BASE);
 		PSHORT dw_LOD_OBJECT = (PSHORT)(baseSurroundExt + PICK_TARGET_SURROUND);
 		if (targetMonster == 0)
@@ -692,28 +710,57 @@ void FF_Dlg::OnBnClickedButtonAtk()
 			OnBnClickedCheckAutoSkill();
 			return;
 		}
-		/// <summary>
-		/// 单体技能
-		/// </summary>
-		//00481A7D | FF73 10 | push dword ptr ds : [ebx + 0x10] | 技能索引
-		//00481A80 | 8BCF | mov ecx, edi | 00964CC8
-		//00481A82 | 50 | push eax |
-		//00481A83 | E8 FB2FFFFF | call 0x474A83 | 使用技能call
-		DWORD local_dw_SKILL_PARAM1 = dw_SKILL_PARAM1;
-		DWORD local_dw_SKILL_CALL = dw_SKILL_CALL;
-		__asm {
-			pushad
-			pushfd
-			push skill_index
-			mov ecx, local_dw_SKILL_PARAM1 //3B 3D ?? ?? ?? ?? 75 0A B9 ?? ?? ?? ?? E8 ?? ?? ?? ?? 8B 47 ?? 2B 47 ?? 53 33 DB 
-			mov ecx, [ecx]
-			push 0
-			mov eax, local_dw_SKILL_CALL //E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 83 F8 0B 0F 85 ?? ?? ?? ?? A1 ?? ?? ?? ?? 8B 70 ?? E8 ?? ?? ?? ?? FF 73 ?? 8B 48 ?? E8 ?? ?? ?? ?? 8B 4B ?? 83 C1 FB 83 F9 01 
-			call eax
-			popfd
-			popad
 
+
+		if (m_checkbox_hook_atk.GetCheck() == BST_CHECKED && picked > 0)
+		{
+			DWORD monster_real = *(PDWORD)(picked + 0x2f0);
+			DWORD local_dw_SKILL_REMOTE_PARAM1 = dw_SKILL_REMOTE_PARAM1;
+			DWORD local_dw_SKILL_REMOTE_CALL = dw_SKILL_REMOTE_CALL;
+			__asm {
+
+				pushad
+				pushfd
+				mov ecx, local_dw_SKILL_REMOTE_PARAM1
+				push 0x0
+				push 0x0
+				push monster_real
+				push skill_index
+				push 0x0
+				mov eax, local_dw_SKILL_REMOTE_CALL
+				call eax
+				popfd
+				popad
+
+			}
 		}
+		else {
+
+			/// <summary>
+			/// 单体技能
+			/// </summary>
+			//00481A7D | FF73 10 | push dword ptr ds : [ebx + 0x10] | 技能索引
+			//00481A80 | 8BCF | mov ecx, edi | 00964CC8
+			//00481A82 | 50 | push eax |
+			//00481A83 | E8 FB2FFFFF | call 0x474A83 | 使用技能call
+			DWORD local_dw_SKILL_PARAM1 = dw_SKILL_PARAM1;
+			DWORD local_dw_SKILL_CALL = dw_SKILL_CALL;
+			__asm {
+				pushad
+				pushfd
+				push skill_index
+				mov ecx, local_dw_SKILL_PARAM1 //3B 3D ?? ?? ?? ?? 75 0A B9 ?? ?? ?? ?? E8 ?? ?? ?? ?? 8B 47 ?? 2B 47 ?? 53 33 DB 
+				mov ecx, [ecx]
+				push 0
+				mov eax, local_dw_SKILL_CALL //E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 83 F8 0B 0F 85 ?? ?? ?? ?? A1 ?? ?? ?? ?? 8B 70 ?? E8 ?? ?? ?? ?? FF 73 ?? 8B 48 ?? E8 ?? ?? ?? ?? 8B 4B ?? 83 C1 FB 83 F9 01 
+				call eax
+				popfd
+				popad
+
+			}
+		}
+
+
 
 	}
 
@@ -821,9 +868,10 @@ void FF_Dlg::OnBnClickedButtonSurround()
 		DWORD lvl = *((LPDWORD)(member + PLAY_OFFSET_LEVEL));
 		FLOAT far_away = *((PFLOAT)(member + SURROUND_FARAWAY));
 		DWORD gm = *((LPDWORD)(member + PLAY_OFFSET_GM));
+		DWORD monster_sign = *((LPDWORD)(member + 0x2f0));
 		//(LPCWCHAR)name,
 	/*	 2a4f414 | (null) | Ꞔ | 0 | 3418 | 100 | 397 | 8493.9 | 3356.7*/
-		tmp.Format(L"%x %s(%d)h:%d m:%d f:%d  x:%.1f z:%.1f y%.1f s:%.1f   gm:%d", member, A2W(name), lvl, hp, mp, fp, x, z, y, far_away, gm);
+		tmp.Format(L"%x %x %s(%d)h:%d m:%d f:%d  x:%.1f z:%.1f y%.1f s:%.1f   gm:%d", member, monster_sign, A2W(name), lvl, hp, mp, fp, x, z, y, far_away, gm);
 		info.Append(tmp);
 		info.Append(_T("\r\n"));
 		index++;
@@ -1037,7 +1085,7 @@ BOOL FF_Dlg::OnInitDialog()
 		this->m_combox_skills.ResetContent();
 		m_ListCtrl_sends.InsertColumn(0, _T("index"), LVCFMT_LEFT, 40);
 		m_ListCtrl_sends.InsertColumn(1, _T("len"), LVCFMT_LEFT, 40);
-		m_ListCtrl_sends.InsertColumn(2, _T("content"), LVCFMT_LEFT, 190);
+		m_ListCtrl_sends.InsertColumn(2, _T("content"), LVCFMT_LEFT, 290);
 		m_ListCtrl_sends.InsertColumn(3, _T("calladdr"), LVCFMT_LEFT, 90);
 		m_ListCtrl_sends.SetExtendedStyle(LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT);
 		for (auto item : current)
@@ -1052,12 +1100,12 @@ BOOL FF_Dlg::OnInitDialog()
 	}
 	else {
 		AddLog(L"请选择角色后 重新启动 外挂");
-		//CWnd* pwndctrl = GetDlgItem(IDC_CHECK_AutoHpMpFp);
-		//for (int i = 0; i < 99 && pwndctrl != NULL; i++)
-		//{
-		//	pwndctrl->EnableWindow(FALSE);
-		//	pwndctrl = GetNextDlgTabItem(pwndctrl);
-		//}
+		CWnd* pwndctrl = GetDlgItem(IDC_CHECK_AutoHpMpFp);
+		for (int i = 0; i < 99 && pwndctrl != NULL; i++)
+		{
+			pwndctrl->EnableWindow(FALSE);
+			pwndctrl = GetNextDlgTabItem(pwndctrl);
+		}
 	}
 
 
@@ -1209,7 +1257,7 @@ void FF_Dlg::OnBnClickedButtonShowinfo()
 		info.Append(tmp);
 		info.Append(_T("\r\n"));
 		AddLog(info);
-		this->surround->PickItem(member, this->player_instance->PlayBase);
+		this->surround->PickItem2(member, this->player_instance->PlayBase);
 
 	}
 
@@ -1471,7 +1519,7 @@ void FF_Dlg::OnBnClickedButtonFuben()
 		{
 			tmp.Format(L"%x %s ,%d  lvl: %d   x:%.1f z:%.1f y%.1f s:%.1f  副本拾取 \r\n", member, A2W((PCHAR)(nameObj + 0x4)), id, itemLvl, x, z, y, far_away);
 			AddLog(tmp);
-			this->surround->PickItem(member, this->player_instance->PlayBase);
+			this->surround->PickItem2(member, this->player_instance->PlayBase);
 		}
 
 	}
@@ -1603,14 +1651,7 @@ void FF_Dlg::OnBnClickedCheckKuang()
 
 
 
-DWORD methodAddrBase;
-DWORD oldAddress;
-DWORD content;
-DWORD len;
-DWORD flags;
-DWORD callAddr;
-DWORD go_on1 = 0x005DBED1;
-DWORD go_on2 = 0x005DBEB8;
+
 _declspec(naked)  void MyJmp() {
 
 
@@ -1671,9 +1712,14 @@ static UINT SendMsgThread(LPVOID lparam) {
 			{
 				continue;
 			}
+			if (filter_len > 0 && len != filter_len)
+			{
+				continue;
+			}
+
 			cs_info.Format(_T("%d"), pindex);
 			m_ff_Dlg->m_ListCtrl_sends.InsertItem(pindex, cs_info);
-			cs_info.Format(_T("%x"), len);
+			cs_info.Format(_T("%d"), len);
 			m_ff_Dlg->m_ListCtrl_sends.SetItemText(pindex, 1, cs_info);
 			for (size_t i = 0; i < len; i++)
 			{
@@ -1698,7 +1744,7 @@ static UINT SendMsgThread(LPVOID lparam) {
 
 
 }
-CInlineHook inlinehook;
+
 void FF_Dlg::OnBnClickedButtonHook()
 {
 	DWORD dw_old;
@@ -1713,19 +1759,11 @@ void FF_Dlg::OnBnClickedButtonHook()
 		AddLog(L"hook failed");
 		return;
 	}
-	CWinThread* pthread;
-	send_control = true;
-	pthread = AfxBeginThread(SendMsgThread, this);
-	AddLog(L"hook start");
+	this->m_checkbox_start_stop.SetCheck(BST_CHECKED);
+	OnBnClickedCheckOpenStart();
 }
 
 
-void FF_Dlg::OnBnClickedButtonStop()
-{
-	send_control = false;
-	flags = 0;
-	// TODO: 在此添加控件通知处理程序代码
-}
 
 
 void FF_Dlg::OnBnClickedButtonClear()
@@ -1746,6 +1784,7 @@ void FF_Dlg::OnNMDblclkListSends(NMHDR* pNMHDR, LRESULT* pResult)
 	CString byteStr = m_ListCtrl_sends.GetItemText(nIndex, 2);
 	m_edit_buffers.SetWindowTextW(byteStr);
 	*pResult = 0;
+
 }
 
 
@@ -1754,29 +1793,74 @@ void FF_Dlg::OnBnClickedButtonSend()
 	CString  str_content;
 
 	m_edit_buffers.GetWindowTextW(str_content);
-	std::string hex_str= CT2A(str_content.GetString());  
+	std::string hex_str = CT2A(str_content.GetString());
 	BYTE Bytes[0x1000]{};
 	DWORD ByteLength = hex_str.length() / 2;
 	std::string  str_buffer{};
 	for (size_t i = 0; i < ByteLength; i++)
 	{
-		str_buffer = hex_str.substr(i*2,2);
-		sscanf_s(str_buffer.c_str(),"%x",&(Bytes[i]));
+		str_buffer = hex_str.substr(i * 2, 2);
+		sscanf_s(str_buffer.c_str(), "%x", &(Bytes[i]));
 	}
 	DWORD  pStart = (DWORD)&Bytes;
+	DWORD local_dw_SOCKET_SEND_PARAM1 = dw_SOCKET_SEND_PARAM1;
+	DWORD local_dw_SOCKET_SEND_CALL = dw_SOCKET_SEND_CALL;
 	__asm {
 		pushad
 		pushfd
 		push 0x1
 		push ByteLength
 		push pStart
-		mov ecx, 0x0084D078
-		mov ecx,[ecx+0x4]
-		mov eax, 0x005DBEB2
+		mov ecx, local_dw_SOCKET_SEND_PARAM1
+		mov ecx, [ecx + 0x4]
+		mov eax, local_dw_SOCKET_SEND_CALL
 		call eax
 		popfd
 		popad
- 
+
 	}
 	// TODO: 在此添加控件通知处理程序代码
+}
+
+
+
+
+void FF_Dlg::OnBnClickedButtonFilter()
+{
+
+	filter_len = GetDlgItemInt(IDC_EDIT_Len, NULL, 1);
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+
+void FF_Dlg::OnBnClickedCheckOpenStart()
+{
+
+	if (this->m_checkbox_start_stop.GetCheck() == BST_CHECKED)
+	{
+
+		if (!send_control)
+		{
+			send_control = true;
+			pthread = AfxBeginThread(SendMsgThread, this);
+		}
+
+		AddLog(L"开始抓包");
+	}
+	else {
+		send_control = false;
+		flags = 0;
+		AddLog(L"停止抓包");
+
+	}
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+
+void FF_Dlg::OnBnClickedButtonUnhook()
+{
+	send_control = false;
+	this->m_checkbox_start_stop.SetCheck(BST_UNCHECKED);
+	inlinehook.UnHook();
+	AddLog(L"卸载hook");
 }

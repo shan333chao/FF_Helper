@@ -15,6 +15,7 @@ public:
 private:
 
 	FARPROC m_pFnOrign; // 要Hook的函数地址
-	BYTE m_bOld[5]; // 要Hook的函数 前5个字节
-	BYTE m_bNew[5]; // 要Hook的函数 修改后的5个字节
+	BYTE m_bOld[6]; // 要Hook的函数 前5个字节
+	BYTE m_bNew[6]; // 要Hook的函数 修改后的5个字节
+	BYTE m_nop[6];//填充nop
 };
