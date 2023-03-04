@@ -798,12 +798,14 @@ void FF_Dlg::OnBnClickedButtonGetitemobj()
 			continue;
 		}
 		itemLvl = *(PDWORD)(nameObj + 0x230);
-		if (itemLvl != 0xffffffff && itemLvl > 1 && count == 1)
-		{
-			this->pkg->SellItem(ret);
-			result.Format(L"%d %x %s[%d] %d,   %x      lvl:%d 卖 ", i, ret, A2W((PCHAR)(nameObj + 0x4)), count, itemId, nameObj, itemLvl);
-			AddLog(result);
-		}
+		result.Format(L"%d %x %s[%d] %d,   %x      lvl:%d  ", i, ret, A2W((PCHAR)(nameObj + 0x4)), count, itemId, nameObj, itemLvl);
+		AddLog(result);
+		//if (itemLvl != 0xffffffff && itemLvl > 1 && count == 1)
+		//{
+		//	//this->pkg->SellItem(ret);
+		//	result.Format(L"%d %x %s[%d] %d,   %x      lvl:%d 卖 ", i, ret, A2W((PCHAR)(nameObj + 0x4)), count, itemId, nameObj, itemLvl);
+		//	AddLog(result);
+		//}
 	}
 
 
