@@ -84,6 +84,10 @@ DWORD dw_SKILL_REMOTE_PARAM1 = SignaturesDataSingleton::getInstance().GetAddress
 DWORD dw_SKILL_REMOTE_CALL = SignaturesDataSingleton::getInstance().GetAddressByKey("SKILL_REMOTE_CALL");
 DWORD dw_SOCKET_SEND_PARAM1 = SignaturesDataSingleton::getInstance().GetAddressByKey("SOCKET_SEND_PARAM1");
 DWORD dw_SOCKET_SEND_CALL = SignaturesDataSingleton::getInstance().GetAddressByKey("SOCKET_SEND_CALL");
+
+DWORD dw_HOOK_SEND_CALL = SignaturesDataSingleton::getInstance().GetAddressByKey("HOOK_SEND_CALL");
+DWORD dw_TEAM_SKILL_PARAM1= SignaturesDataSingleton::getInstance().GetAddressByKey("TEAM_SKILL_PARAM1");
+DWORD dw_FLY_ATK_CALL= SignaturesDataSingleton::getInstance().GetAddressByKey("FLY_ATK_CALL");
 CInlineHook inlinehook;
 CWinThread* pthread;
 DWORD pindex;
@@ -111,15 +115,15 @@ FF_Dlg::FF_Dlg(CWnd* pParent /*=nullptr*/)
 	this->pkg = new Package();
 	this->surround = new Surround();
 	this->FillJobSkillLvl();
-	this->GetOldFunAddress();
+
 	m_s_iSpeedTimes = 0;
-	MH_Initialize();
+ 
 
 }
 
 FF_Dlg::~FF_Dlg()
 {
-	MH_Uninitialize();
+ 
 }
 
 
@@ -223,7 +227,7 @@ void FF_Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CHECK_COMMON_ATK, m_check_common_atk);
 	DDX_Control(pDX, IDC_CHECK_AUTO_SELL, m_btn_auto_sell);
 	DDX_Control(pDX, IDC_COMBO_SKILLS, m_combox_skills);
-	DDX_Control(pDX, IDC_CHECK_COLLECT, m_checkbox_collect);
+ 
 	DDX_Control(pDX, IDC_CHECK_GMONLINE, m_checkbox_gmstatus);
 	DDX_Text(pDX, IDC_EDIT_MONSTER_LVL, m_edit_monster_lvl);
 	DDX_Control(pDX, IDC_CHECK_NoCollisior, m_checkbox_nocollisior);
@@ -244,6 +248,7 @@ void FF_Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CHECK_HOOK_ATK, m_checkbox_hook_atk);
 	DDX_Control(pDX, IDC_EDIT_Len, m_edit_filter_len);
 	DDX_Control(pDX, IDC_CHECK_OPEN_START, m_checkbox_start_stop);
+	DDX_Control(pDX, IDC_CHECK_FLY_ATK, m_checkbox_flypick);
 }
 
 
@@ -252,16 +257,16 @@ BEGIN_MESSAGE_MAP(FF_Dlg, CDialogEx)
 	ON_BN_CLICKED(IDC_CHECK_Auto_Skill, &FF_Dlg::OnBnClickedCheckAutoSkill)
 	ON_WM_TIMER()
 	ON_WM_CLOSE()
-	ON_BN_CLICKED(IDC_BUTTON_LoadDll, &FF_Dlg::OnBnClickedButtonLoaddll)
+ 
 	ON_BN_CLICKED(IDC_BUTTON_ATK, &FF_Dlg::OnBnClickedButtonAtk)
 	ON_BN_CLICKED(IDC_BUTTON_GetItemObj, &FF_Dlg::OnBnClickedButtonGetitemobj)
-	ON_BN_CLICKED(IDC_BUTTON_USE, &FF_Dlg::OnBnClickedButtonUse)
+ 
 	ON_BN_CLICKED(IDC_BUTTON_Surround, &FF_Dlg::OnBnClickedButtonSurround)
 
 	ON_BN_CLICKED(IDC_BUTTON_GM, &FF_Dlg::OnBnClickedButtonGm)
 	ON_BN_CLICKED(IDC_CHECK_AUTO_SELL, &FF_Dlg::OnBnClickedCheckAutoSell)
 
-	ON_BN_CLICKED(IDC_CHECK_COLLECT, &FF_Dlg::OnBnClickedCheckCollect)
+
 	ON_BN_CLICKED(IDC_CHECK_GMONLINE, &FF_Dlg::OnBnClickedCheckGmonline)
 	ON_BN_CLICKED(IDC_CHECK_NoCollisior, &FF_Dlg::OnBnClickedCheckNocollisior)
 	ON_BN_CLICKED(IDC_CHECK_SURROUND_EXT, &FF_Dlg::OnBnClickedCheckSurroundExt)
@@ -293,6 +298,8 @@ BEGIN_MESSAGE_MAP(FF_Dlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_FILTER, &FF_Dlg::OnBnClickedButtonFilter)
 	ON_BN_CLICKED(IDC_CHECK_OPEN_START, &FF_Dlg::OnBnClickedCheckOpenStart)
 	ON_BN_CLICKED(IDC_BUTTON_UNHOOK, &FF_Dlg::OnBnClickedButtonUnhook)
+ 
+	ON_BN_CLICKED(IDC_BUTTON_Collect_MONSTER, &FF_Dlg::OnBnClickedButtonCollectMonster)
 END_MESSAGE_MAP()
 
 
@@ -434,7 +441,7 @@ void FF_Dlg::OnTimer(UINT_PTR nIDEvent)
 
 	case AUTO_COLLECT_MONSTER: {
 
-		CollectMonster();
+ 
 		break;
 	}
 	case AUTO_REFRESH_INFO: {
@@ -470,147 +477,9 @@ void FF_Dlg::OnClose()
 	OnBnClickedButtonUnhook();
 	OnBnClickedCheckGmonline();
 	CDialogEx::OnClose();
-}
-UINT_PTR WINAPI MySetTimer(__in_opt HWND hWnd, __in UINT_PTR nIDEvent, __in UINT uElapse, __in_opt TIMERPROC lpTimerFunc)
-{
-	UINT uMyElapse = (UINT)((double)uElapse / m_s_iSpeedTimes);
+} 
 
-	return oldSetTimer(hWnd, nIDEvent, uMyElapse, lpTimerFunc);
-}
-LONG WINAPI MyGetMessageTime(VOID)
-{
-	if (m_s_iSpeedTimes != pre_multiSpeed)
-	{
-		first_GetMessageTimed = FALSE;
-		first_timeGetTimed = FALSE;
-		first_GetTickCounted = FALSE;
-		first_QueryPerformanceCountered = FALSE;
-		pre_multiSpeed = m_s_iSpeedTimes;
-	}
-	if (first_GetMessageTimed == FALSE)
-	{
-		if (Has_Pre_GetMessageTime == FALSE)
-		{
-			First_GetMessageTime = oldGetMessageTime();
-			New_First_GetMessageTime = First_GetMessageTime;
-			New_Pre_GetMessageTime = First_GetMessageTime;
-			Has_Pre_GetMessageTime = TRUE;
-		}
-		else
-		{
-			First_GetMessageTime = Pre_GetMessageTime;
-			New_First_GetMessageTime = New_Pre_GetMessageTime;
-		}
-		first_GetMessageTimed = TRUE;
-	}
-	Pre_GetMessageTime = oldGetMessageTime();
-	New_Pre_GetMessageTime = LONG(double(Pre_GetMessageTime - First_GetMessageTime) * m_s_iSpeedTimes) + New_First_GetMessageTime;
-	return New_Pre_GetMessageTime;
-}
-
-void WINAPI MySleep(DWORD dwMilliseconds)
-{
-	cannot_exit++;
-	DWORD myInterval = (DWORD)((double)dwMilliseconds / m_s_iSpeedTimes);
-	oldSleep(myInterval);
-	cannot_exit--;
-	return;
-}
-
-DWORD WINAPI  NewTimeGetTime2(void)
-{
-	static DWORD fake = 0;
-	static DWORD last_real = 0;
-	DWORD now = (*oldTimeGetTime)();
-	DWORD result;
-
-	if (last_real == 0)
-	{
-		result = fake = last_real = now;
-	}
-	else
-	{
-		result = fake + m_s_iSpeedTimes * (now - last_real);
-		fake = result;
-		last_real = now;
-	}
-
-	return result;
-}
-
-DWORD WINAPI  NewGetTickCount2(void)
-{
-	static DWORD fake = 0;
-	static DWORD last_real = 0;
-	DWORD now = (*oldGetTickCount)();
-	DWORD result;
-
-	if (last_real == 0)
-	{
-		result = fake = last_real = now;
-	}
-	else
-	{
-		result = fake + m_s_iSpeedTimes * (now - last_real);
-		fake = result;
-		last_real = now;
-	}
-
-	return result;
-}
-
-BOOL WINAPI  NewQueryPerformanceCounter(__out LARGE_INTEGER* lpPerformanceCount)
-{
-	BOOL ret = (*oldQueryPerformanceCounter)(lpPerformanceCount);
-	if (!ret) return ret;
-
-	static LARGE_INTEGER fake = { 0 };
-	static LARGE_INTEGER last_real = { 0 };
-	LARGE_INTEGER now = *lpPerformanceCount;
-
-	if (last_real.QuadPart == 0)
-	{
-		fake = last_real = now;
-	}
-	else
-	{
-		lpPerformanceCount->QuadPart = fake.QuadPart + m_s_iSpeedTimes * (now.QuadPart - last_real.QuadPart);
-		fake = *lpPerformanceCount;
-		last_real = now;
-	}
-
-	return ret;
-}
-
-void FF_Dlg::OnBnClickedButtonLoaddll()
-{
-
-	if (m_s_iSpeedTimes > 0)
-	{
-		m_s_iSpeedTimes = 0;
-		MH_DisableHook(&GetTickCount);
-		MH_DisableHook(&timeGetTime);
-		MH_DisableHook(&QueryPerformanceCounter);
-		MH_DisableHook(&oldSetTimer);
-		MH_DisableHook(&oldGetMessageTime);
-		MH_DisableHook(&oldSleep);
-		//MH_DisableHook(&oldTimeSetEvent);
-	}
-	else {
-		m_s_iSpeedTimes = 5;
-
-		MH_EnableHook(&GetTickCount);
-		MH_EnableHook(&timeGetTime);
-		MH_EnableHook(&QueryPerformanceCounter);
-		MH_EnableHook(&oldSetTimer);
-		MH_EnableHook(&oldGetMessageTime);
-		MH_EnableHook(&oldSleep);
-		//MH_EnableHook(&oldTimeSetEvent);
-	}
-
-
-}
-
+ 
 
 void FF_Dlg::OnBnClickedButtonAtk()
 {
@@ -645,11 +514,13 @@ void FF_Dlg::OnBnClickedButtonAtk()
 				this->closeToMonster = 0;
 				return;
 			}
-			DWORD picked = this->surround->PickMonster(targetMonster);
-			if (picked <= 0)
+			if (this->m_checkbox_flypick.GetCheck()== BST_CHECKED)
 			{
-				return;
+				picked = this->surround->PickMonsterFly(targetMonster);
 			}
+			else {
+				picked = this->surround->PickMonster(targetMonster);
+			} 
 			this->closeToMonster = targetMonster;
 		}
 		DWORD hp = *((LPDWORD)(this->closeToMonster + PLAY_OFFSET_HP));
@@ -675,21 +546,48 @@ void FF_Dlg::OnBnClickedButtonAtk()
 
 	if (this->m_checkbox_atk.GetCheck() == BST_CHECKED)
 	{
-		DWORD local_dw_ACTION_PARAM1 = dw_ACTION_PARAM1;
-		DWORD local_dw_ACTION_CALL = dw_ACTION_CALL;
-		//动作技能实现普工
-		__asm {
-			pushad
-			pushfd
-			push 0x0
-			push 0x1b
-			mov ecx, local_dw_ACTION_PARAM1  //B9 ?? ?? ?? ?? 6A 03 E8 ?? ?? ?? ?? C2 0C 00 83 89 ?? ?? ?? ?? FF E9 ?? ?? ?? ?? 83 B9 ?? ?? ?? ?? 00 74 14 6A 00 FF B1 ?? ?? ?? ?? 
-			push 0x3
-			mov eax, local_dw_ACTION_CALL //E8 ?? ?? ?? ?? C2 0C 00 83 89 ?? ?? ?? ?? FF E9 ?? ?? ?? ?? 83 B9 ?? ?? ?? ?? 00 74 14 6A 00 FF B1 ?? ?? ?? ?? B9 ?? ?? ?? ?? 6A 0A 
-			call eax
-			popfd
-			popad
+
+		if (m_checkbox_hook_atk.GetCheck() == BST_CHECKED && picked > 0) {
+		
+			DWORD monster_real = *(PDWORD)(picked + 0x2f0);
+			DWORD local_dw_TEAM_SKILL_PARAM1 = dw_TEAM_SKILL_PARAM1;
+			DWORD local_dw_FLY_ATK_CALL = dw_FLY_ATK_CALL;
+			__asm {
+				pushad
+				pushfd
+				push 0
+				push 0
+				push monster_real
+				mov ecx, local_dw_TEAM_SKILL_PARAM1
+				push 0x1d
+				mov eax, local_dw_FLY_ATK_CALL
+				call eax
+				popfd
+				popad 
+			}
+		
 		}
+		else {
+			DWORD local_dw_ACTION_PARAM1 = dw_ACTION_PARAM1;
+			DWORD local_dw_ACTION_CALL = dw_ACTION_CALL;
+			//动作技能实现普工
+			__asm {
+				pushad
+				pushfd
+				push 0x0
+				push 0x1b
+				mov ecx, local_dw_ACTION_PARAM1  //B9 ?? ?? ?? ?? 6A 03 E8 ?? ?? ?? ?? C2 0C 00 83 89 ?? ?? ?? ?? FF E9 ?? ?? ?? ?? 83 B9 ?? ?? ?? ?? 00 74 14 6A 00 FF B1 ?? ?? ?? ?? 
+				push 0x3
+				mov eax, local_dw_ACTION_CALL //E8 ?? ?? ?? ?? C2 0C 00 83 89 ?? ?? ?? ?? FF E9 ?? ?? ?? ?? 83 B9 ?? ?? ?? ?? 00 74 14 6A 00 FF B1 ?? ?? ?? ?? B9 ?? ?? ?? ?? 6A 0A 
+				call eax
+				popfd
+				popad
+			}
+		
+		}
+
+
+
 		return;
 	}
 
@@ -798,27 +696,21 @@ void FF_Dlg::OnBnClickedButtonGetitemobj()
 			continue;
 		}
 		itemLvl = *(PDWORD)(nameObj + 0x230);
-		result.Format(L"%d %x %s[%d] %d,   %x      lvl:%d  ", i, ret, A2W((PCHAR)(nameObj + 0x4)), count, itemId, nameObj, itemLvl);
-		AddLog(result);
-		//if (itemLvl != 0xffffffff && itemLvl > 1 && count == 1)
-		//{
-		//	//this->pkg->SellItem(ret);
-		//	result.Format(L"%d %x %s[%d] %d,   %x      lvl:%d 卖 ", i, ret, A2W((PCHAR)(nameObj + 0x4)), count, itemId, nameObj, itemLvl);
-		//	AddLog(result);
-		//}
+		//result.Format(L"%d %x %s[%d] %d,   %x      lvl:%d  ", i, ret, A2W((PCHAR)(nameObj + 0x4)), count, itemId, nameObj, itemLvl);
+		//AddLog(result);
+		if (itemLvl != 0xffffffff && itemLvl > 1 && count == 1)
+		{
+			this->pkg->SellItem(ret);
+			result.Format(L"%d %x %s[%d] %d,   %x      lvl:%d 卖 ", i, ret, A2W((PCHAR)(nameObj + 0x4)), count, itemId, nameObj, itemLvl);
+			AddLog(result);
+		}
 	}
 
 
 }
 
 
-void FF_Dlg::OnBnClickedButtonUse()
-{
-
-
-
-}
-
+ 
 
 void FF_Dlg::OnBnClickedButtonSurround()
 {
@@ -884,11 +776,7 @@ void FF_Dlg::OnBnClickedButtonSurround()
 
 }
 
-void FF_Dlg::CollectMonster()
-{
-
-
-}
+ 
 
 
 
@@ -1035,32 +923,14 @@ void FF_Dlg::FillJobSkillLvl()
 
 }
 
-void FF_Dlg::OnBnClickedCheckCollect()
-{
-	if (this->m_checkbox_collect.GetCheck() == BST_CHECKED)
-	{
-
-	}
-	else {
-
-	}
-}
+ 
 
 
 
 
 
 
-void FF_Dlg::GetOldFunAddress()
-{
-	oldSetTimer = (SETTIMER)GetProcAddress(GetModuleHandle(TEXT("User32.dll")), "SetTimer");
-	oldGetMessageTime = (GETMESSAGETIME)GetProcAddress(GetModuleHandle(TEXT("User32.dll")), "GetMessageTime");
-	oldSleep = (TypeSleep)::GetProcAddress(GetModuleHandle(TEXT("Kernel32.dll")), "Sleep");
-	oldGetTickCount = (GETTICKCOUNT)GetProcAddress(GetModuleHandle(TEXT("Kernel32.dll")), "GetTickCount");
-	oldQueryPerformanceCounter = (QUERYPERFORMANCECOUNTER)GetProcAddress(GetModuleHandle(TEXT("Kernel32.dll")), "QueryPerformanceCounter");
-	//oldTimeSetEvent = (TIMESETEVENT)GetProcAddress(GetModuleHandle(TEXT("Winmm.dll")), "timeSetEvent");
-	oldTimeGetTime = (TIMEGETTIME)GetProcAddress(GetModuleHandle(TEXT("Winmm.dll")), "timeGetTime");
-}
+ 
 
 FF_Dlg* ff_dlg;
 BOOL FF_Dlg::OnInitDialog()
@@ -1108,18 +978,7 @@ BOOL FF_Dlg::OnInitDialog()
 			pwndctrl->EnableWindow(FALSE);
 			pwndctrl = GetNextDlgTabItem(pwndctrl);
 		}
-	}
-
-
-	MH_CreateHook(&GetTickCount, &NewGetTickCount2, reinterpret_cast<LPVOID*>(&oldGetTickCount));
-	MH_CreateHook(&timeGetTime, &NewTimeGetTime2, reinterpret_cast<LPVOID*>(&oldTimeGetTime));
-	MH_CreateHook(&QueryPerformanceCounter, &NewQueryPerformanceCounter, reinterpret_cast<LPVOID*>(&oldQueryPerformanceCounter));
-	MH_CreateHook(&oldSetTimer, &MySetTimer, reinterpret_cast<LPVOID*>(&oldSetTimer));
-	//MH_CreateHook(&oldTimeSetEvent, &MyTimeSetEvent, reinterpret_cast<LPVOID*>(&oldTimeSetEvent));
-	MH_CreateHook(&oldSleep, &MySleep, reinterpret_cast<LPVOID*>(&oldSleep));
-	MH_CreateHook(&oldGetMessageTime, &MyGetMessageTime, reinterpret_cast<LPVOID*>(&oldGetMessageTime));
-
-
+	} 
 	return TRUE;
 }
 HANDLE gmDetectThread = NULL;
@@ -1755,7 +1614,8 @@ void FF_Dlg::OnBnClickedButtonHook()
 	{
 		return;
 	}
-	bool hookRet = inlinehook.Hook((FARPROC)0x005DBEB2, (FARPROC)MyJmp);
+	//0x005DC834
+	bool hookRet = inlinehook.Hook((FARPROC)dw_HOOK_SEND_CALL, (FARPROC)MyJmp);
 	if (!hookRet)
 	{
 		AddLog(L"hook failed");
@@ -1865,4 +1725,106 @@ void FF_Dlg::OnBnClickedButtonUnhook()
 	this->m_checkbox_start_stop.SetCheck(BST_UNCHECKED);
 	inlinehook.UnHook();
 	AddLog(L"卸载hook");
+}
+
+
+ 
+
+
+void FF_Dlg::OnBnClickedButtonCollectMonster()
+{
+	if (!this->player_instance->init())
+	{
+		return;
+	}
+	DWORD local_dw_TEAM_SKILL_PARAM1 = dw_TEAM_SKILL_PARAM1;
+	DWORD local_dw_FLY_ATK_CALL = dw_FLY_ATK_CALL;
+	int maxMembers = this->surround->GetMaxMembers();
+	DWORD assertTmp0 = 0;
+	DWORD assertTmp1 = 0;
+	DWORD assertTmp2 = 0;
+	DWORD assertTmp3 = 0;
+	DWORD assertTmp4 = 0;
+	CString info;
+	USES_CONVERSION;
+	DWORD index = 0;
+	DWORD member = 0;
+	CString tmp;
+	DWORD id = 0;
+	for (size_t i = 0; i < maxMembers; i++)
+	{
+		assertTmp0 = *((LPDWORD)(dw_PICK_TARGET_BASE));
+		member = *((LPDWORD)(i * 4 + dw_SURRDOUND_BASE));
+		if (member == 0 || member == -1)
+		{
+			continue;
+		}
+
+		assertTmp1 = *((LPDWORD)(assertTmp0 + 0xCC));
+		if (assertTmp1 == 0)
+		{
+
+			continue;
+		}
+		assertTmp2 = *((LPDWORD)(member + 0x170));
+		if (assertTmp2 != 0x5)
+		{
+			continue;
+		}
+		assertTmp3 = *((LPDWORD)(dw_SURROUND_TMP_1));//39 3D ?? ?? ?? ?? 75 0C 39 35 ?? ?? ?? ?? 0F 85 ?? ?? ?? ?? 83 4D EC FF 
+		assertTmp4 = *((LPDWORD)(dw_SURROUND_TMP_2));//39 35 ?? ?? ?? ?? 0F 85 ?? ?? ?? ?? 83 4D EC FF D9 05 ?? ?? ?? ?? D9 5D E0 
+		if (assertTmp3 == member && assertTmp4 == 0)
+		{
+			continue;
+		}
+
+		PCHAR name = (PCHAR)(member + PLAY_OFFSET_NAME);
+		DWORD hp = *((LPDWORD)(member + PLAY_OFFSET_HP));
+		DWORD mp = *((LPDWORD)(member + PLAY_OFFSET_MP));
+		DWORD fp = *((LPDWORD)(member + PLAY_OFFSET_FP));
+		FLOAT x = *((PFLOAT)(member + PLAY_OFFSET_X));
+		FLOAT y = *((PFLOAT)(member + PLAY_OFFSET_Y));
+		FLOAT z = *((PFLOAT)(member + PLAY_OFFSET_Z));
+		DWORD lvl = *((LPDWORD)(member + PLAY_OFFSET_LEVEL));
+		FLOAT far_away = *((PFLOAT)(member + SURROUND_FARAWAY));
+		DWORD gm = *((LPDWORD)(member + PLAY_OFFSET_GM));
+		DWORD monster_sign = *((LPDWORD)(member + 0x2f0));
+		lvl = *((LPDWORD)(member + PLAY_OFFSET_LEVEL));
+		if (lvl == 1 || mp <= 1 || fp <= 1 || hp <= 0 || id > 1)
+		{
+			continue;
+		}
+
+		if (this->m_edit_monster_lvl > 0 && lvl != this->m_edit_monster_lvl)
+		{
+			continue;
+		}
+		DWORD picked = this->surround->PickMonsterFly(member);
+		picked = this->surround->GetPicked();
+		if (picked>0)
+		{
+			DWORD monster_real = *(PDWORD)(picked + 0x2f0);
+
+			__asm {
+				pushad
+				pushfd
+				push 0
+				push 0
+				push monster_real
+				mov ecx, local_dw_TEAM_SKILL_PARAM1
+				push 0x1d
+				mov eax, local_dw_FLY_ATK_CALL
+				call eax
+				popfd
+				popad
+			}
+			tmp.Format(L"%x %x %s(%d)h:%d m:%d f:%d  x:%.1f z:%.1f y%.1f s:%.1f   gm:%d", member, monster_sign, A2W(name), lvl, hp, mp, fp, x, z, y, far_away, gm);
+			AddLog(tmp);
+		}
+		index++;
+	}
+ 
+
+ 
+
 }

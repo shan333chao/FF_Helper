@@ -5,7 +5,7 @@
 
 DWORD Surround::GetMaxMembers()
 {
-	
+
 	return *((LPDWORD)(dw_SURROUND_MAX_MEMBERS));
 }
 
@@ -32,7 +32,7 @@ DWORD Surround::GetCloseToMonster(DWORD monsterLvl)
 	DWORD id = 0;
 	DWORD gm = 0;
 
-	
+
 
 	for (size_t i = 0; i < maxMembers; i++)
 	{
@@ -120,6 +120,29 @@ DWORD Surround::PickMonster(DWORD monster)
 	return result;
 }
 
+DWORD Surround::PickMonsterFly(DWORD monster)
+{
+	DWORD local_dw_PICK_FLY_CALL = dw_PICK_FLY_CALL;
+	DWORD local_dw_SURROUND_TMP_1 = dw_SURROUND_TMP_1;
+	DWORD local_monster = monster;
+	__asm {
+		pushad
+		pushfd
+		push 0x1
+		push local_monster
+		mov ebx, local_dw_SURROUND_TMP_1
+		mov ebx, [ebx]
+		mov ecx, [ebx + 0x16c]
+		mov eax, local_dw_PICK_FLY_CALL
+		call eax
+		popfd
+		popad
+	}
+
+
+	return 0;
+}
+
 
 
 
@@ -131,7 +154,7 @@ DWORD Surround::GetPicked()
 	return basePicked;
 }
 
-DWORD Surround::PickItem(DWORD itemObj,DWORD playerObj)
+DWORD Surround::PickItem(DWORD itemObj, DWORD playerObj)
 {
 	//00491797 | 57 | push edi | 地面物品对象
 	//00491798 | 8BCE | mov ecx, esi | 20C06028
@@ -174,7 +197,7 @@ DWORD Surround::PickItem2(DWORD itemObj, DWORD playerObj)
 	DWORD local_dw_PICK_REMOTE1_CALL = dw_PICK_REMOTE1_CALL;
 	DWORD local_dw_PICK_REMOTE2_PARAM2 = dw_PICK_REMOTE2_PARAM2;
 	DWORD local_dw_PICK_REMOTE2_CALL = dw_PICK_REMOTE2_CALL;
- 
+
 	__asm {
 		pushad
 		pushfd
@@ -185,7 +208,7 @@ DWORD Surround::PickItem2(DWORD itemObj, DWORD playerObj)
 		mov esi, local_dw_PICK_REMOTE2_PARAM2
 		push ecx
 		push itemSig
-		mov ecx,esi
+		mov ecx, esi
 		mov eax, local_dw_PICK_REMOTE2_CALL
 		call eax
 		popfd

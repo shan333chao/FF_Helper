@@ -45,30 +45,30 @@ public:
 	void AddLog(CString text);
 	void EatHpMpFp();
 	afx_msg void OnClose();
-	afx_msg void OnBnClickedButtonLoaddll();
+ 
 	afx_msg void OnBnClickedButtonAtk();
 
 	CButton m_btn_autoskill;
 	DWORD select_skill_index;
 	afx_msg void OnBnClickedButtonGetitemobj();
-	afx_msg void OnBnClickedButtonUse();
+ 
 	afx_msg void OnBnClickedButtonSurround();
-	void CollectMonster();
+ 
 
 	CButton m_btn_combineskill;
 	CButton m_check_common_atk;
 	CSliderCtrl m_slider_view_high;
-	afx_msg void OnNMThemeChangedSliderViewHigh(NMHDR* pNMHDR, LRESULT* pResult);
+	//afx_msg void OnNMThemeChangedSliderViewHigh(NMHDR* pNMHDR, LRESULT* pResult);
 
 	afx_msg void OnBnClickedButtonGm();
 	CButton m_btn_auto_sell;
 	afx_msg void OnBnClickedCheckAutoSell();
 	void FillJobSkillLvl();
 	CComboBox m_combox_skills;
-	afx_msg void OnBnClickedCheckCollect();
+ 
 
 	CButton m_checkbox_collect;
-	void GetOldFunAddress();
+ 
 
 	afx_msg void OnBnClickedCheckGmonline();
 	CButton m_checkbox_gmstatus;
@@ -96,7 +96,7 @@ public:
 	afx_msg void OnBnClickedCheckGet();
 	// 移动速度修改
 	CEdit m_edit_move_speed;
-	afx_msg void OnBnClickedButton1();
+	//afx_msg void OnBnClickedButton1();
 	afx_msg void OnBnClickedButtonKaSkill();
 	CButton m_checkbox_draw;
 	CButton m_checkbox_team_luck;
@@ -110,8 +110,7 @@ public:
 	void UseWeapon(DWORD useIndex,DWORD packageIndex);
 	CButton m_checkbox_caikuang;
 	afx_msg void OnBnClickedCheckKuang();
-	void SetThreadHook(HANDLE hThread);
-	void SetHook();
+ 
  
  
 	afx_msg void OnBnClickedButtonHook();
@@ -129,5 +128,8 @@ public:
 	CButton m_checkbox_start_stop;
 	afx_msg void OnBnClickedCheckOpenStart();
 	afx_msg void OnBnClickedButtonUnhook();
+	CButton m_checkbox_flypick;
+ 
+	afx_msg void OnBnClickedButtonCollectMonster();
 };
 extern FF_Dlg* ff_Dlg;

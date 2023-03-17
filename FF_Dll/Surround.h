@@ -9,6 +9,7 @@ public:
 	DWORD GetCloseToMonster(DWORD monsterLvl);
 
 	DWORD PickMonster(DWORD monster);
+	DWORD PickMonsterFly(DWORD monster);
 
 	DWORD GetPicked();
 
@@ -27,7 +28,8 @@ private:
 	DWORD dw_PICK_REMOTE1_CALL = SignaturesDataSingleton::getInstance().GetAddressByKey("PICK_REMOTE1_CALL");
 	DWORD dw_PICK_REMOTE2_PARAM2 = SignaturesDataSingleton::getInstance().GetAddressByKey("PICK_REMOTE2_PARAM2");
 	DWORD dw_PICK_REMOTE2_CALL = SignaturesDataSingleton::getInstance().GetAddressByKey("PICK_REMOTE2_CALL");
-
+	DWORD dw_TEAM_SKILL_PARAM1 = SignaturesDataSingleton::getInstance().GetAddressByKey("TEAM_SKILL_PARAM1");
+	DWORD dw_PICK_FLY_CALL= SignaturesDataSingleton::getInstance().GetAddressByKey("PICK_FLY_CALL");
 
 
 
