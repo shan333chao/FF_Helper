@@ -51,15 +51,22 @@ void SignaturesDataSingleton::InitSignatureDataAddr()
 	for (auto signature : mapSignatureDesc)
 	{
 		ADDR_RET = sct.Search(signature.second);
-		addr = *(PDWORD)ADDR_RET;
-		if (signature.first.find("CALL") != std::string::npos)
+		if (ADDR_RET>0)
 		{
-			addr = addr + (DWORD)ADDR_RET + 4;
-			mapSignatureValue.insert(std::make_pair(signature.first, addr));
+			addr = *(PDWORD)ADDR_RET;
+			if (signature.first.find("CALL") != std::string::npos)
+			{
+				addr = addr + (DWORD)ADDR_RET + 4;
+				mapSignatureValue.insert(std::make_pair(signature.first, addr));
+			}
+			else {
+				mapSignatureValue.insert(std::make_pair(signature.first, addr));
+			}
 		}
 		else {
-			mapSignatureValue.insert(std::make_pair(signature.first, addr));
+			mapSignatureValue.insert(std::make_pair(signature.first, 0x0));
 		}
+	
 	}
 }
 
