@@ -131,5 +131,6 @@ public:
 	CButton m_checkbox_flypick;
  
 	afx_msg void OnBnClickedButtonCollectMonster();
+	afx_msg void OnBnClickedCheckHookAtk();
 };
 extern FF_Dlg* ff_Dlg;

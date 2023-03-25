@@ -69,7 +69,7 @@ DWORD Surround::GetCloseToMonster(DWORD monsterLvl)
 		//FLOAT y = *((PFLOAT)(member + PLAY_OFFSET_Y));  
 		//gm = *((LPDWORD)(member + PLAY_OFFSET_GM));
 		lvl = *((LPDWORD)(member + PLAY_OFFSET_LEVEL));
-		if (lvl == 1 || mp <= 1 || fp <= 1 || hp <= 0 || id > 1)
+		if (lvl <= 1 || mp <= 1 || fp <= 1 || hp <= 1 )
 		{
 			continue;
 		}
@@ -109,30 +109,29 @@ DWORD Surround::PickMonster(DWORD monster)
 		pushfd
 		push 0x1
 		push tmpMonster
-		mov ecx, local_dw_PICK_TARGET_BASE
-		mov ecx, [ecx]
+		mov ecx, local_dw_PICK_TARGET_BASE 
+		mov ecx,[ecx]
 		mov eax, local_dw_PICK_MONSTER_CALL //E8 ?? ?? ?? ?? 8B C6 5F 5E 5B C2 08 00 55 8B EC 83 EC 1C A1 ?? ?? ?? ?? 
 		call eax
-		mov result, eax
+ 
 		popfd
 		popad
 	}
-	return result;
+	return tmpMonster;
 }
 
 DWORD Surround::PickMonsterFly(DWORD monster)
 {
 	DWORD local_dw_PICK_FLY_CALL = dw_PICK_FLY_CALL;
-	DWORD local_dw_SURROUND_TMP_1 = dw_SURROUND_TMP_1;
+	DWORD local_dw_PICK_TARGET_BASE = dw_PICK_TARGET_BASE;
 	DWORD local_monster = monster;
 	__asm {
 		pushad
 		pushfd
 		push 0x1
-		push local_monster
-		mov ebx, local_dw_SURROUND_TMP_1
-		mov ebx, [ebx]
-		mov ecx, [ebx + 0x16c]
+		push local_monster 
+		mov ecx, local_dw_PICK_TARGET_BASE
+		mov ecx,[ecx]
 		mov eax, local_dw_PICK_FLY_CALL
 		call eax
 		popfd

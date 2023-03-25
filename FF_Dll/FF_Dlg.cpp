@@ -30,6 +30,7 @@ std::vector<std::pair<CString, DWORD> > warrior_v;
 std::vector<std::pair<CString, DWORD> > xinshou_v;
 std::vector<std::pair<CString, DWORD> > magic_v;
 std::vector<std::pair<CString, DWORD> > doctor_v;
+std::vector<std::pair<CString, DWORD> > shoot_v;
 std::map<DWORD, CString> equipments;
 DWORD m_s_iSpeedTimes;
 std::map<DWORD, std::vector<std::pair<CString, DWORD>>> jobMap;
@@ -71,7 +72,7 @@ DWORD dw_SURROUND_TMP_2 = SignaturesDataSingleton::getInstance().GetAddressByKey
 DWORD dw_ACTION_PARAM1 = SignaturesDataSingleton::getInstance().GetAddressByKey("ACTION_PARAM1");
 DWORD dw_ACTION_CALL = SignaturesDataSingleton::getInstance().GetAddressByKey("ACTION_CALL");
 
-DWORD dw_SKILL_PARAM1 = SignaturesDataSingleton::getInstance().GetAddressByKey("SKILL_PARAM1");
+DWORD dw_SKILL_PARAM1 = SignaturesDataSingleton::getInstance().GetAddressByKey("QUICK_USE_PARAM2");
 DWORD dw_SKILL_CALL = SignaturesDataSingleton::getInstance().GetAddressByKey("SKILL_CALL");
 
 DWORD dw_NO_COLLISIOR = SignaturesDataSingleton::getInstance().GetAddressByKey("NO_COLLISIOR");
@@ -300,6 +301,7 @@ BEGIN_MESSAGE_MAP(FF_Dlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_UNHOOK, &FF_Dlg::OnBnClickedButtonUnhook)
  
 	ON_BN_CLICKED(IDC_BUTTON_Collect_MONSTER, &FF_Dlg::OnBnClickedButtonCollectMonster)
+	ON_BN_CLICKED(IDC_CHECK_HOOK_ATK, &FF_Dlg::OnBnClickedCheckHookAtk)
 END_MESSAGE_MAP()
 
 
@@ -487,6 +489,7 @@ void FF_Dlg::OnBnClickedButtonAtk()
 	{
 		return;
 	}
+	DWORD me = this->player_instance->init();
 	DWORD picked = this->surround->GetPicked();
 	DWORD targetMonster = 0;
 	if (this->m_check_common_atk.GetCheck() != BST_CHECKED && picked <= 0)
@@ -550,7 +553,7 @@ void FF_Dlg::OnBnClickedButtonAtk()
 		if (m_checkbox_hook_atk.GetCheck() == BST_CHECKED && picked > 0) {
 		
 			DWORD monster_real = *(PDWORD)(picked + 0x2f0);
-			DWORD local_dw_TEAM_SKILL_PARAM1 = dw_TEAM_SKILL_PARAM1;
+			DWORD local_dw_TEAM_SKILL_PARAM1 = dw_SOCKET_SEND_PARAM1;
 			DWORD local_dw_FLY_ATK_CALL = dw_FLY_ATK_CALL;
 			__asm {
 				pushad
@@ -612,24 +615,36 @@ void FF_Dlg::OnBnClickedButtonAtk()
 
 		if (m_checkbox_hook_atk.GetCheck() == BST_CHECKED && picked > 0)
 		{
-			DWORD monster_real = *(PDWORD)(picked + 0x2f0);
-			DWORD local_dw_SKILL_REMOTE_PARAM1 = dw_SKILL_REMOTE_PARAM1;
-			DWORD local_dw_SKILL_REMOTE_CALL = dw_SKILL_REMOTE_CALL;
-			__asm {
+			//DWORD monster_real = *(PDWORD)(picked + 0x2f0);
+			//DWORD local_dw_SKILL_REMOTE_PARAM1 = dw_SKILL_REMOTE_PARAM1;
+			//DWORD local_dw_SKILL_REMOTE_CALL = dw_SKILL_REMOTE_CALL;
+			//__asm {
 
+			//	pushad
+			//	pushfd
+			//	//mov ecx, local_dw_SKILL_REMOTE_PARAM1
+			//	//mov ecx, [ecx]
+			//	//push 0x0
+			//	//push skill_index
+			//	//push monster_real
+			//	//mov eax, local_dw_SKILL_REMOTE_CALL
+			//	//call eax
+			//	popfd
+			//	popad
+
+			//}
+			DWORD local_dw_SKILL_PARAM1 = dw_SKILL_PARAM1;
+			DWORD local_dw_SKILL_CALL = dw_SKILL_CALL;
+			__asm {
 				pushad
 				pushfd
-				mov ecx, local_dw_SKILL_REMOTE_PARAM1
-				push 0x0
-				push 0x0
-				push monster_real
 				push skill_index
-				push 0x0
-				mov eax, local_dw_SKILL_REMOTE_CALL
+				mov ecx, local_dw_SKILL_PARAM1
+				push 0
+				mov eax, local_dw_SKILL_CALL //E8 ?? ?? ?? ?? 50 8B CB E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? FF 77 ?? 8B 4D ?? 50 E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 83 F8 0B 0F 85 ?? ?? ?? ?? A1 ?? ?? ?? ?? 8B 58 ?? 
 				call eax
 				popfd
 				popad
-
 			}
 		}
 		else {
@@ -647,14 +662,12 @@ void FF_Dlg::OnBnClickedButtonAtk()
 				pushad
 				pushfd
 				push skill_index
-				mov ecx, local_dw_SKILL_PARAM1 //3B 3D ?? ?? ?? ?? 75 0A B9 ?? ?? ?? ?? E8 ?? ?? ?? ?? 8B 47 ?? 2B 47 ?? 53 33 DB 
-				mov ecx, [ecx]
+				mov ecx, local_dw_SKILL_PARAM1  
 				push 0
-				mov eax, local_dw_SKILL_CALL //E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 83 F8 0B 0F 85 ?? ?? ?? ?? A1 ?? ?? ?? ?? 8B 70 ?? E8 ?? ?? ?? ?? FF 73 ?? 8B 48 ?? E8 ?? ?? ?? ?? 8B 4B ?? 83 C1 FB 83 F9 01 
+				mov eax, local_dw_SKILL_CALL //E8 ?? ?? ?? ?? 50 8B CB E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? FF 77 ?? 8B 4D ?? 50 E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 83 F8 0B 0F 85 ?? ?? ?? ?? A1 ?? ?? ?? ?? 8B 58 ?? 
 				call eax
 				popfd
-				popad
-
+				popad 
 			}
 		}
 
@@ -827,6 +840,8 @@ void FF_Dlg::FillJobSkillLvl()
 	jobMap.insert(make_pair(0, xinshou_v));
 	jobNameMap.insert(std::make_pair(0, L"初心者"));
 
+
+
 	warrior_v.push_back(std::make_pair(L"1.弧月斩", 4));
 	warrior_v.push_back(std::make_pair(L"2.疾风突刺", 6));
 	warrior_v.push_back(std::make_pair(L"3.摘星斩", 11));
@@ -844,6 +859,30 @@ void FF_Dlg::FillJobSkillLvl()
 	jobNameMap.insert(std::make_pair(1, L"战士"));
 	jobMap.insert(make_pair(1, warrior_v));
 
+
+
+
+	shoot_v.push_back(std::make_pair(L"1.弧月斩", 4));
+	shoot_v.push_back(std::make_pair(L"2.疾风突刺", 6));
+	shoot_v.push_back(std::make_pair(L"3.摘星斩", 11));
+	shoot_v.push_back(std::make_pair(L"4.迟缓术", 16));
+	shoot_v.push_back(std::make_pair(L"5.乱箭射击", 16));
+	shoot_v.push_back(std::make_pair(L"6.牵引", 17));
+	shoot_v.push_back(std::make_pair(L"7.疾行", 18));
+	shoot_v.push_back(std::make_pair(L"8.轮术领悟", 20));
+	shoot_v.push_back(std::make_pair(L"9.弓术领悟", 20));
+	shoot_v.push_back(std::make_pair(L"10.伏击", 22));
+	shoot_v.push_back(std::make_pair(L"11.潜行", 25));
+	shoot_v.push_back(std::make_pair(L"12.剑雨", 25));
+	shoot_v.push_back(std::make_pair(L"13.十字震荡", 27));
+	shoot_v.push_back(std::make_pair(L"14.偷袭", 28));
+	shoot_v.push_back(std::make_pair(L"15.精准射击", 30));
+	shoot_v.push_back(std::make_pair(L"16.破招", 32));
+	shoot_v.push_back(std::make_pair(L"17.自动射击", 35));
+	shoot_v.push_back(std::make_pair(L"18.绝对回避", 37));
+	shoot_v.push_back(std::make_pair(L"19.死亡轮舞", 40));
+	jobMap.insert(make_pair(2, shoot_v));
+	jobNameMap.insert(std::make_pair(2, L"弓箭手"));
 
 
 	magic_v.push_back(std::make_pair(L"1.弧月斩", 4));
@@ -1737,7 +1776,7 @@ void FF_Dlg::OnBnClickedButtonCollectMonster()
 	{
 		return;
 	}
-	DWORD local_dw_TEAM_SKILL_PARAM1 = dw_TEAM_SKILL_PARAM1;
+	DWORD local_dw_TEAM_SKILL_PARAM1 = dw_SOCKET_SEND_PARAM1;
 	DWORD local_dw_FLY_ATK_CALL = dw_FLY_ATK_CALL;
 	int maxMembers = this->surround->GetMaxMembers();
 	DWORD assertTmp0 = 0;
@@ -1799,7 +1838,7 @@ void FF_Dlg::OnBnClickedButtonCollectMonster()
 		{
 			continue;
 		}
-		DWORD picked = this->surround->PickMonsterFly(member);
+		DWORD picked = this->surround->PickMonster(member);
 		picked = this->surround->GetPicked();
 		if (picked>0)
 		{
@@ -1827,4 +1866,32 @@ void FF_Dlg::OnBnClickedButtonCollectMonster()
 
  
 
+}
+
+
+void FF_Dlg::OnBnClickedCheckHookAtk()
+{
+	PDWORD atkFar = (PDWORD)(this->player_instance->PlayBase + PLAY_OFFSET_ATK_FAR);
+	PDWORD jumpLvl = (PDWORD)(this->player_instance->PlayBase + PLAY_OFFSET_JUMP_LVL);
+	PDWORD dragSpeed = (PDWORD)(this->player_instance->PlayBase + PLAY_OFFSET_DRAG_SPEED);
+	PDWORD atkSpeed = (PDWORD)(this->player_instance->PlayBase + PLAY_OFFSET_ARK_SPEED);
+	
+	// TODO: 在此添加控件通知处理程序代码
+	if (this->m_checkbox_hook_atk.GetCheck() == BST_CHECKED)
+	{
+ 
+ 
+		*atkFar = 99999;
+		*jumpLvl = 360;
+		*dragSpeed = 99999;
+		*atkSpeed = 9999;
+		AddLog(L"攻速提升\t 释放速度提升\t 跳跃高度提升 \t 攻击距离提升");
+	}
+	else {
+		*atkFar = 15;
+		*jumpLvl = 50;
+		*dragSpeed = 20;
+		*atkSpeed = 30;
+		AddLog(L"关闭 攻速提升\t 释放速度提升\t 跳跃高度提升 \t 攻击距离提升");
+	}
 }

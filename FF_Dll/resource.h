@@ -65,7 +65,6 @@
 #define IDC_BUTTON_FILTER               1062
 #define IDC_CHECK_OPEN_START            1064
 #define IDC_CHECK_FLY_ATK               1065
-#define IDC_BUTTON5                     1066
 #define IDC_BUTTON_Collect_MONSTER      1066
 
 // Next default values for new objects
