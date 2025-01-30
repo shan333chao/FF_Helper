@@ -12,12 +12,6 @@
 #include <vector>
 #include <map>
 #include "hooked_def.h"
-#include "include/MinHook.h"
-#if defined _M_X64
-#pragma comment(lib, "libMinHook.x64.lib")
-#elif defined _M_IX86
-#pragma comment(lib, "libMinHook.x86.lib")
-#endif
 #include "SignaturesCodeTool.h"
 #include "SignaturesDataSingleton.h"
 #include "CInlineHook.h"
