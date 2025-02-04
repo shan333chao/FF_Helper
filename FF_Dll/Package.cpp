@@ -5,13 +5,9 @@
 DWORD Package::InitPackage(DWORD base)
 {
 
-	this->packageBase = base;
-	this->packageIndexMax = *((LPDWORD)(base + PLAY_PACKAGE_MAX_INDEX));
-	if (this->packageIndexMax == NULL)
-	{
-		return 0;
-	}
-
+	this->packageBase = base + 0xf94;
+	PDWORD packageObj = (PDWORD)(base + 0xf94);
+	this->packageIndexMax = packageObj[3];//背包最大格子数量 
 	return 	this->packageIndexMax;
 }
 
@@ -79,23 +75,29 @@ DWORD Package::QuickUse(DWORD index)
 	return 0;
 }
 
-DWORD Package::GetItemName(DWORD itemObj)
+DWORD Package::GetItemName(DWORD Id)
 {
-	//00569B60 | FF77 0C | push dword ptr ds : [edi + 0xC] |
-	//00569B63 | BE 78E18400 | mov esi, neuz.84E178 | esi:"\\Yx" == &"H`F"
-	//00569B68 | 8BCE | mov ecx, esi | esi:"\\Yx" == &"H`F"
-	//00569B6A | E8 3EB8E9FF | call 0x4053AD |
+	/*
+	00404DEF   | 55                        | push ebp                                                    |
+	00404DF0   | 8BEC                      | mov ebp,esp                                                 |
+	00404DF2   | 51                        | push ecx                                                    |
+	00404DF3   | 894D FC                   | mov dword ptr ss:[ebp-0x4],ecx                              |
+	00404DF6   | 8B45 FC                   | mov eax,dword ptr ss:[ebp-0x4]                              |
+	00404DF9   | FF70 0C                   | push dword ptr ds:[eax+0xC]                                 | 物品id
+	00404DFC   | B9 509AA000               | mov ecx,neuz.A09A50                                         | neuz.A09A50
+	00404E01   | E8 02000000               | call 0x404E08                                               | 通过ID获取物品名称
+	00404E06   | C9                        | leave                                                       |
+	00404E07   | C3                        | ret                                                         |
+	*/
 
-	DWORD item = itemObj;
+ 
 	DWORD nameAddr = {};
 	DWORD local_dw_GET_ITEM_NAME_PARAM1 = dw_GET_ITEM_NAME_PARAM1;
 	DWORD local_dw_GET_ITEM_NAME_CALL = dw_GET_ITEM_NAME_CALL;
 	__asm {
 		pushad
 		pushfd
-		mov edi, itemObj
-		mov edi, [edi + 0xc]
-		push edi
+		push Id
 		mov ecx, local_dw_GET_ITEM_NAME_PARAM1  //BE ?? ?? ?? ?? 8B CE E8 ?? ?? ?? ?? 8B 4D 08 8B D8 8D 43 ?? 50 E8 ?? ?? ?? ?? 
 		mov eax, local_dw_GET_ITEM_NAME_CALL //E8 ?? ?? ?? ?? 8B 4D 08 8B D8 8D 43 ?? 50 E8 ?? ?? ?? ?? 83 65 FC 00 83 7B ?? 78 C7 45 F0 01 00 00 00 75 53 8B 8F ?? ?? ?? ?? 
 		call eax

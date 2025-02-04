@@ -1,0 +1,37 @@
+int FF_Dlg::WSASendCall(PUCHAR buffer, int bufferLength) {
+
+	/*  发包原始函数
+		//0074E0D0 | FF75 10 | push dword ptr ss : [ebp + 0x10] | 固定值1
+		//0074E0D3 | FF75 0C | push dword ptr ss : [ebp + 0xC] | 包长
+		//0074E0D6 | FF75 08 | push dword ptr ss : [ebp + 0x8] | 包内容
+		//0074E0D9 | 8B45 FC | mov eax, dword ptr ss : [ebp - 0x4] | eax = [9fc508 + 0x4]
+		//0074E0DC | 8B40 04 | mov eax, dword ptr ds : [eax + 0x4] | eax = [[9fc508 + 0x4]+ 0x4]
+		//0074E0DF | 8B4D FC | mov ecx, dword ptr ss : [ebp - 0x4] | ecx = [9fc508 + 0x4]
+		//0074E0E2 | 8B49 04 | mov ecx, dword ptr ds : [ecx + 0x4] | ecx = [[9fc508 + 0x4]+ 0x4]
+		//0074E0E5 | 8B00 | mov eax, dword ptr ds : [eax] | eax = [[[9fc508 + 0x4]+ 0x4] ]
+		//0074E0E7 | FF50 28 | call dword ptr ds : [eax + 0x28] | 发包封装函数 [[[9fc508 + 0x4]+ 0x4] ] + 0x28
+	*/
+	unsigned int socketClient = 0x9fc508;
+	//9fc508 + 0x4
+	unsigned int ClientOffset = socketClient + 0x4;
+	//[9fc508 + 0x4]
+	unsigned int offset_4 = *(reinterpret_cast<unsigned int*>(ClientOffset));
+	//[[9fc508 + 0x4]+ 0x4]
+	unsigned int ecxVal = *(reinterpret_cast<unsigned int*>(offset_4 + 0x4));
+	//发包封装函数 [[[9fc508 + 0x4]+ 0x4] ] + 0x28
+	unsigned int callAddr = *(reinterpret_cast<unsigned int*>(ecxVal + 0x28));
+	__asm {
+		pushad
+		pushfd
+		push 0x1
+		push bufferLength
+		push buffer
+		mov eax, callAddr
+		mov ecx, ecxVal
+		call eax
+		popfd
+		popad
+	}
+}
+
+16D67340

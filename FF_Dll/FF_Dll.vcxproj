@@ -91,13 +91,15 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DENUG;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BEA_ENGINE_STATIC;WIN32;_WINDOWS;_DENUG;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <ModuleDefinitionFile>.\FF_Dll.def</ModuleDefinitionFile>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -185,7 +187,6 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CInlineHook.cpp" />
     <ClCompile Include="FF_Dlg.cpp" />
     <ClCompile Include="FF_Dll.cpp" />
     <ClCompile Include="Package.cpp" />
@@ -196,8 +197,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="player.cpp" />
-    <ClCompile Include="SignaturesCodeTool.cpp" />
-    <ClCompile Include="SignaturesDataSingleton.cpp" />
     <ClCompile Include="Surround.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -206,18 +205,15 @@
     <None Include="res\FF_Dll.rc2" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CInlineHook.h" />
+    <ClInclude Include="CHookUtil.h" />
     <ClInclude Include="FF_Dlg.h" />
     <ClInclude Include="FF_Dll.h" />
     <ClInclude Include="ff_offset.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="hooked_def.h" />
     <ClInclude Include="Package.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="SignaturesCodeTool.h" />
-    <ClInclude Include="SignaturesDataSingleton.h" />
     <ClInclude Include="Surround.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TIMER_EVENT.h" />

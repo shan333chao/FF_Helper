@@ -1,31 +1,42 @@
 #pragma once
 #define MODULE_NAME  _T("Neuz.exe")
 #define SECTION_CHARACTERISTICS  0x60000020 
-//#define MAIN_OFFSET_BASE 0x44A7E8
-//#define MAIN_OFFSET_BASE 0x0084F808 //A1 ?? ?? ?? ?? 33 F6 3B C6 74 54 8B 88 ?? ?? ?? ?? 3B CE 74 4A 39 B1 ?? ?? ?? ?? 74 42 83 B8 ?? ?? ?? ?? 4C 
-#define PLAY_OFFSET_LEVEL 0x8b8
-#define PLAY_OFFSET_HP 0x8D8
-#define PLAY_OFFSET_MP 0x8DC
-#define PLAY_OFFSET_FP 0x8E0
-#define PLAY_OFFSET_POTENTIAL 0x8e8
-#define PLAY_OFFSET_NAME 0x17B0
-#define PLAY_OFFSET_X 0x54
-#define PLAY_OFFSET_Z 0x58
-#define PLAY_OFFSET_Y 0x5C
-#define PLAY_OFFSET_ID 0x100c
-#define PLAY_OFFSET_GM 0x924
-#define SURROUND_FARAWAY 0x2cc
-#define PLAY_OFFSET_JOB 0x920
-#define PLAY_PACKAGE_MAX_INDEX 0xdd0
+
+
+#define MAIN_OFFSET_BASE 	0x00A062D0 	//人物基地址偏移
+#define PLAY_OFFSET_HP 	0x000009B4 	//血量偏移偏移
+#define SURROUND_MAX_MEMBERS 	0x00BC3398 	//周围总数量偏移
+#define SURRDOUND_BASE 	0x00BBE578 	//怪物集合偏移
+#define PLAY_OFFSET_NAME 	0x00001C58 	//人物昵称偏移
+#define PLAY_EXTEND_OFFSET 	0x0000171C 	//人物扩展属性偏移
+#define WSASEND_ADDR 	0x009FC508 	//Socket对象偏移
+#define PLAY_OFFSET_JOB 	0x000009FC 	//职业类型偏移
+#define HOOK_WSASEND 	0x0074E0CE 	//拦截发包地址
+#define PLAY_OFFSET_ID 	0x000003D4 	//人物ID偏移
+#define PLAY_OFFSET_LEVEL 	0x00000990 	//人物等级偏移
+#define PLAY_OFFSET_GM 	0x00000A00 	//GM偏移
+#define GET_ITEM_NAME_CALL 	0x00404E08 	//通过物品ID获取物品名称call地址
+#define GET_ITEM_NAME_PARAM1 	0x00A09A50 	//获取物品名称call 的this参数偏移
+#define GET_SKILL_NAME_BY_ID 	0x004144F0 	//获取技能名称call地址
+#define ATK_SELECTED_BASE 	0x00A06788 	//选中容器基址
+#define PICK_SURROUND_ITEM 	0x0071EF72 	//选中怪物CALL
+/////////////////////////////////////////////下自定义区域、、、、、、、、、、、、、、、
+
+#define PLAY_OFFSET_MP PLAY_OFFSET_HP +4+4  //魔法偏移
+#define PLAY_OFFSET_FP PLAY_OFFSET_HP+4+4+4  //活力偏移
+ 
+#define PLAY_OFFSET_X 0x54 //人物坐标X偏移
+#define PLAY_OFFSET_Z 0x58 //人物坐标Z偏移
+#define PLAY_OFFSET_Y 0x5C //人物坐标Y偏移
+ 
+ 
+
+#define SURROUND_FARAWAY 0x2cc //距离怪物偏移 暂时找不到 更好的真实距离
+ 
+#define PLAY_PACKAGE_MAX_INDEX 0xdd0 //背包最大数量
 #define PLAY_PACKAGE_USED_INDEX 0xdcc
-//名字颜色
-#define PLAY_OFFSET_NAME_COLOR 0xA14
-//决斗值  [决斗名声]
-#define PLAY_OFFSET_NAME_FIGHT 0xA0C
-//猎杀值 
-#define PLAY_OFFSET_NAME_HUNTING 0xA18
-//杀戮值 名字变红
-#define PLAY_OFFSET_NAME_HUNTING 0xA1C
+#define SURROUND_MEMEBER_ID 	0x2f0 	//周围怪物ID偏移
+#define PICK_ITEM_CONTAINER_OFFSET 	0x14 	//拾取容器地址
 
 
 //移动速度
@@ -136,4 +147,3 @@
 
 #define SOCKET_SEND_PARAM1 0x0084D078 //B9 ?? ?? ?? ?? E8 ?? ?? ?? ?? C7 83 ?? ?? ?? ?? 01 00 00 00 5E 5B C9 C3 83 A1 ?? ?? ?? ?? 00 57 B8 CD CD CD CD 
 #define SOCKET_SEND_CALL 0x005DBEB2   //6A 01 FF B5 ?? ?? ?? ?? 50 E8 ?? ?? ?? ?? 83 4D ?? FF 8D 8D ?? ?? ?? ?? E8 ?? ?? ?? ?? 8B 4D ?? 64 89 0D 00 00 00 00 59 5F 5E 8B 4D ?? 33 CD E8 ?? ?? ?? ?? C9 C2 14 00 55 8D AC 24 ?? ?? ?? ?? B8 18 40 00 00 E8 ?? ?? ?? ?? 
- 

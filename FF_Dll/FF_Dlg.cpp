@@ -11,11 +11,10 @@
 #include "ff_offset.h"
 #include <vector>
 #include <map>
-#include "hooked_def.h"
-#include "SignaturesCodeTool.h"
-#include "SignaturesDataSingleton.h"
-#include "CInlineHook.h"
 
+#include "CHookUtil.h"
+#include <string>
+#pragma comment(lib, "Lib/BeaEngineHook.lib")
 #define WM_UPDATEDATA 0x70029
 // FF_Dlg 对话框
 
@@ -58,31 +57,32 @@ LARGE_INTEGER New_Pre_QueryPerformanceCounter;
 BOOL Has_Pre_QueryPerformanceCounter = FALSE;
 
 //----------特征码变量区-----------
-DWORD dw_SURRDOUND_BASE = SignaturesDataSingleton::getInstance().GetAddressByKey("SURRDOUND_BASE");
-DWORD dw_PICK_TARGET_BASE = SignaturesDataSingleton::getInstance().GetAddressByKey("PICK_TARGET_BASE");
-DWORD dw_SURROUND_TMP_1 = SignaturesDataSingleton::getInstance().GetAddressByKey("SURROUND_TMP_1");
-DWORD dw_SURROUND_TMP_2 = SignaturesDataSingleton::getInstance().GetAddressByKey("SURROUND_TMP_2");
-DWORD dw_ACTION_PARAM1 = SignaturesDataSingleton::getInstance().GetAddressByKey("ACTION_PARAM1");
-DWORD dw_ACTION_CALL = SignaturesDataSingleton::getInstance().GetAddressByKey("ACTION_CALL");
+DWORD dw_SURRDOUND_BASE = SURRDOUND_BASE;
+DWORD dw_PICK_TARGET_BASE = 0;
+DWORD dw_SURROUND_TMP_1 = 0;
+DWORD dw_SURROUND_TMP_2 = 0;
+DWORD dw_ACTION_PARAM1 = 0;
+DWORD dw_ACTION_CALL = 0;
 
-DWORD dw_SKILL_PARAM1 = SignaturesDataSingleton::getInstance().GetAddressByKey("SKILL_PARAM1");
-DWORD dw_SKILL_CALL = SignaturesDataSingleton::getInstance().GetAddressByKey("SKILL_CALL");
+DWORD dw_SKILL_PARAM1 = 0;
+DWORD dw_SKILL_CALL = 0;
 
-DWORD dw_NO_COLLISIOR = SignaturesDataSingleton::getInstance().GetAddressByKey("NO_COLLISIOR");
-DWORD dw_TEAM_BUFF_BASE = SignaturesDataSingleton::getInstance().GetAddressByKey("TEAM_BUFF_BASE");
+DWORD dw_NO_COLLISIOR = 0;
+DWORD dw_TEAM_BUFF_BASE = 0;
 
-DWORD dw_TEAM_POINT = SignaturesDataSingleton::getInstance().GetAddressByKey("TEAM_POINT");
-DWORD dw_TEAM_LEVEL = SignaturesDataSingleton::getInstance().GetAddressByKey("TEAM_LEVEL");
+DWORD dw_TEAM_POINT = 0;
+DWORD dw_TEAM_LEVEL = 0;
 
-DWORD dw_SKILL_REMOTE_PARAM1 = SignaturesDataSingleton::getInstance().GetAddressByKey("SKILL_REMOTE_PARAM1");
-DWORD dw_SKILL_REMOTE_CALL = SignaturesDataSingleton::getInstance().GetAddressByKey("SKILL_REMOTE_CALL");
-DWORD dw_SOCKET_SEND_PARAM1 = SignaturesDataSingleton::getInstance().GetAddressByKey("SOCKET_SEND_PARAM1");
-DWORD dw_SOCKET_SEND_CALL = SignaturesDataSingleton::getInstance().GetAddressByKey("SOCKET_SEND_CALL");
+DWORD dw_SKILL_REMOTE_PARAM1 = 0;
+DWORD dw_SKILL_REMOTE_CALL = 0;
+DWORD dw_SOCKET_SEND_PARAM1 = 0;
+DWORD dw_SOCKET_SEND_CALL = 0;
 
-DWORD dw_HOOK_SEND_CALL = SignaturesDataSingleton::getInstance().GetAddressByKey("HOOK_SEND_CALL");
-DWORD dw_TEAM_SKILL_PARAM1= SignaturesDataSingleton::getInstance().GetAddressByKey("TEAM_SKILL_PARAM1");
-DWORD dw_FLY_ATK_CALL= SignaturesDataSingleton::getInstance().GetAddressByKey("FLY_ATK_CALL");
-CInlineHook inlinehook;
+
+DWORD dw_HOOK_WSASEND = HOOK_WSASEND;
+DWORD dw_TEAM_SKILL_PARAM1 = 0;
+DWORD dw_FLY_ATK_CALL = 0;
+CHookUtil inlinehook;
 CWinThread* pthread;
 DWORD pindex;
 DWORD send_control;
@@ -111,13 +111,13 @@ FF_Dlg::FF_Dlg(CWnd* pParent /*=nullptr*/)
 	this->FillJobSkillLvl();
 
 	m_s_iSpeedTimes = 0;
- 
+
 
 }
 
 FF_Dlg::~FF_Dlg()
 {
- 
+
 }
 
 
@@ -221,7 +221,7 @@ void FF_Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CHECK_COMMON_ATK, m_check_common_atk);
 	DDX_Control(pDX, IDC_CHECK_AUTO_SELL, m_btn_auto_sell);
 	DDX_Control(pDX, IDC_COMBO_SKILLS, m_combox_skills);
- 
+
 	DDX_Control(pDX, IDC_CHECK_GMONLINE, m_checkbox_gmstatus);
 	DDX_Text(pDX, IDC_EDIT_MONSTER_LVL, m_edit_monster_lvl);
 	DDX_Control(pDX, IDC_CHECK_NoCollisior, m_checkbox_nocollisior);
@@ -251,10 +251,10 @@ BEGIN_MESSAGE_MAP(FF_Dlg, CDialogEx)
 	ON_BN_CLICKED(IDC_CHECK_Auto_Skill, &FF_Dlg::OnBnClickedCheckAutoSkill)
 	ON_WM_TIMER()
 	ON_WM_CLOSE()
- 
+
 	ON_BN_CLICKED(IDC_BUTTON_ATK, &FF_Dlg::OnBnClickedButtonAtk)
 	ON_BN_CLICKED(IDC_BUTTON_GetItemObj, &FF_Dlg::OnBnClickedButtonGetitemobj)
- 
+
 	ON_BN_CLICKED(IDC_BUTTON_Surround, &FF_Dlg::OnBnClickedButtonSurround)
 
 	ON_BN_CLICKED(IDC_BUTTON_GM, &FF_Dlg::OnBnClickedButtonGm)
@@ -267,10 +267,7 @@ BEGIN_MESSAGE_MAP(FF_Dlg, CDialogEx)
 	ON_BN_CLICKED(IDC_CHECK_FRAME_SKILL, &FF_Dlg::OnBnClickedCheckFrameSkill)
 	ON_BN_CLICKED(IDC_BUTTON_ShowInfo, &FF_Dlg::OnBnClickedButtonShowinfo)
 	ON_BN_CLICKED(IDC_CHECK_SILENT, &FF_Dlg::OnBnClickedCheckSilent)
-	ON_BN_CLICKED(IDC_BUTTON_AGI_ADD, &FF_Dlg::OnBnClickedButtonAgiAdd)
-	ON_BN_CLICKED(IDC_BUTTON_STR_ADD, &FF_Dlg::OnBnClickedButtonStrAdd)
-	ON_BN_CLICKED(IDC_BUTTON_INT_ADD, &FF_Dlg::OnBnClickedButtonIntAdd)
-	ON_BN_CLICKED(IDC_BUTTON_VIT_ADD, &FF_Dlg::OnBnClickedButtonVitAdd)
+
 
 
 	ON_BN_CLICKED(IDC_CHECK_COMMON_ATK, &FF_Dlg::OnBnClickedCheckCommonAtk)
@@ -292,7 +289,7 @@ BEGIN_MESSAGE_MAP(FF_Dlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_FILTER, &FF_Dlg::OnBnClickedButtonFilter)
 	ON_BN_CLICKED(IDC_CHECK_OPEN_START, &FF_Dlg::OnBnClickedCheckOpenStart)
 	ON_BN_CLICKED(IDC_BUTTON_UNHOOK, &FF_Dlg::OnBnClickedButtonUnhook)
- 
+
 	ON_BN_CLICKED(IDC_BUTTON_Collect_MONSTER, &FF_Dlg::OnBnClickedButtonCollectMonster)
 END_MESSAGE_MAP()
 
@@ -435,7 +432,7 @@ void FF_Dlg::OnTimer(UINT_PTR nIDEvent)
 
 	case AUTO_COLLECT_MONSTER: {
 
- 
+
 		break;
 	}
 	case AUTO_REFRESH_INFO: {
@@ -471,9 +468,9 @@ void FF_Dlg::OnClose()
 	OnBnClickedButtonUnhook();
 	OnBnClickedCheckGmonline();
 	CDialogEx::OnClose();
-} 
+}
 
- 
+
 
 void FF_Dlg::OnBnClickedButtonAtk()
 {
@@ -508,13 +505,13 @@ void FF_Dlg::OnBnClickedButtonAtk()
 				this->closeToMonster = 0;
 				return;
 			}
-			if (this->m_checkbox_flypick.GetCheck()== BST_CHECKED)
+			if (this->m_checkbox_flypick.GetCheck() == BST_CHECKED)
 			{
 				picked = this->surround->PickMonsterFly(targetMonster);
 			}
 			else {
 				picked = this->surround->PickMonster(targetMonster);
-			} 
+			}
 			this->closeToMonster = targetMonster;
 		}
 		DWORD hp = *((LPDWORD)(this->closeToMonster + PLAY_OFFSET_HP));
@@ -542,7 +539,7 @@ void FF_Dlg::OnBnClickedButtonAtk()
 	{
 
 		if (m_checkbox_hook_atk.GetCheck() == BST_CHECKED && picked > 0) {
-		
+
 			DWORD monster_real = *(PDWORD)(picked + 0x2f0);
 			DWORD local_dw_TEAM_SKILL_PARAM1 = dw_TEAM_SKILL_PARAM1;
 			DWORD local_dw_FLY_ATK_CALL = dw_FLY_ATK_CALL;
@@ -557,9 +554,9 @@ void FF_Dlg::OnBnClickedButtonAtk()
 				mov eax, local_dw_FLY_ATK_CALL
 				call eax
 				popfd
-				popad 
+				popad
 			}
-		
+
 		}
 		else {
 			DWORD local_dw_ACTION_PARAM1 = dw_ACTION_PARAM1;
@@ -577,7 +574,7 @@ void FF_Dlg::OnBnClickedButtonAtk()
 				popfd
 				popad
 			}
-		
+
 		}
 
 
@@ -665,104 +662,167 @@ void FF_Dlg::OnBnClickedButtonGetitemobj()
 	{
 		return;
 	}
-	this->pkg->InitPackage(this->player_instance->PlayBase);
-	CString result;
-	WORD count = 0;
-	DWORD itemId = 0;
-	DWORD itemLvl = -1;
 	USES_CONVERSION;
-	for (size_t i = 0; i < this->pkg->packageIndexMax; i++)
+	this->pkg->InitPackage(this->player_instance->PlayBase);
+	DWORD item = 0;
+	PDWORD packages = (PDWORD)this->pkg->packageBase;
+	for (size_t i = 0; i < this->pkg->packageIndexMax; ++i)
 	{
+		item = packages[4] + 0x160 * i;
+		if (item == 0)
+		{
+			continue;
+		}
 
-		if (equipments.count(i) == 1) //过滤穿戴装备
-			continue;
-		DWORD ret = this->pkg->getPackageItem(i);
-		if (ret == 0)
+
+		DWORD itemId = *(PDWORD)(item + 0xc);
+		WORD count = *(PWORD)(item + 0xc8);
+		if (itemId == 0 || count > 9999)
 		{
 			continue;
 		}
-		itemLvl = -1;
-		count = *((LPWORD)(ret + 0xb8));
-		itemId = *((LPWORD)(ret + 0xc));
-		DWORD  nameObj = this->pkg->GetItemName(ret);
-		if (nameObj == NULL)
-		{
-			continue;
-		}
-		itemLvl = *(PDWORD)(nameObj + 0x230);
-		//result.Format(L"%d %x %s[%d] %d,   %x      lvl:%d  ", i, ret, A2W((PCHAR)(nameObj + 0x4)), count, itemId, nameObj, itemLvl);
-		//AddLog(result);
-		if (itemLvl != 0xffffffff && itemLvl > 1 && count == 1)
-		{
-			this->pkg->SellItem(ret);
-			result.Format(L"%d %x %s[%d] %d,   %x      lvl:%d 卖 ", i, ret, A2W((PCHAR)(nameObj + 0x4)), count, itemId, nameObj, itemLvl);
-			AddLog(result);
-		}
+		DWORD nameAddr = this->pkg->GetItemName(itemId);
+		//result.Format(L"%d %x %s[%d] %d,   %x      lvl:%d  ", i, ret, A2W((PCHAR)(nameAddr)), count, itemId, nameObj, itemLvl);
+
+		CString result;
+		result.Format(L"%08x  %s id:%d count:%d   index:%d ", item, A2W((PCHAR)(nameAddr + 4)), itemId, count, i);
+		AddLog(result);
 	}
-
-
 }
 
 
- 
+
 
 void FF_Dlg::OnBnClickedButtonSurround()
 {
+	m_edit_logs.Empty();
+
+	UpdateData(FALSE);
 	int maxMembers = this->surround->GetMaxMembers();
-	DWORD assertTmp0 = 0;
-	DWORD assertTmp1 = 0;
-	DWORD assertTmp2 = 0;
-	DWORD assertTmp3 = 0;
-	DWORD assertTmp4 = 0;
+
 	CString info;
 	USES_CONVERSION;
 	DWORD index = 0;
 	DWORD member = 0;
-	CString tmp;
+
+	PDWORD members = (PDWORD)dw_SURRDOUND_BASE;
 	for (size_t i = 0; i < maxMembers; i++)
 	{
-		assertTmp0 = *((LPDWORD)(dw_PICK_TARGET_BASE));
-		member = *((LPDWORD)(i * 4 + dw_SURRDOUND_BASE));
-		if (member == 0 || member == -1)
+		CString tmp;
+		try
+		{
+			//member = *((LPDWORD)(i * 4 + dw_SURRDOUND_BASE));	
+			member = members[i];
+			PDWORD currentMember = (PDWORD)member;
+			if (member == 0 || member == -1)
+			{
+				continue;
+			}
+
+			//排除自身
+			if (member == this->player_instance->PlayBase)
+			{
+				continue;
+			}
+			DWORD	type = *((LPDWORD)(member + 0x3ac));//未知类型分析
+
+			if (!(type == 0 || type == 999))
+			{
+				continue;
+			}
+
+			DWORD memberId = *((LPDWORD)(member + SURROUND_MEMEBER_ID));
+			if (memberId == 0)
+			{
+				continue;
+			}
+
+			PCHAR name = (PCHAR)(member + PLAY_OFFSET_NAME);
+
+
+
+			CString testName(name);
+			type = *((LPDWORD)(member + 0x3ac));//未知类型分析
+			bool isok = false;
+			if (testName.IsEmpty() && type == 0) ///物品对象
+			{
+				isok = true;
+			}
+			else if (!testName.IsEmpty() && type == 999) //有名字并且类别是999 就是 有生命体的对象
+			{
+				isok = true;
+			}
+			if (!isok)
+			{
+				continue;
+			}
+
+
+			SHORT hp = *((PSHORT)(member + PLAY_OFFSET_HP));
+			SHORT mp = *((PSHORT)(member + PLAY_OFFSET_MP));
+			SHORT fp = *((PSHORT)(member + PLAY_OFFSET_FP));
+			//FLOAT x = *((PFLOAT)(member + PLAY_OFFSET_X));
+			//FLOAT y = *((PFLOAT)(member + PLAY_OFFSET_Y));
+			//FLOAT z = *((PFLOAT)(member + PLAY_OFFSET_Z));
+			DWORD lvl = *((LPDWORD)(member + PLAY_OFFSET_LEVEL));
+			//FLOAT far_away = *((PFLOAT)(member + SURROUND_FARAWAY));
+			FLOAT far_away = this->surround->GetFarAway(this->player_instance->PlayBase, member);
+			DWORD gm = *((LPDWORD)(member + PLAY_OFFSET_GM));
+			//DWORD monster_sign = *((LPDWORD)(member + 0x2f0));
+
+			DWORD goodid = *((LPDWORD)(member + 0x174));
+			if (mp < -1 || mp>9999)
+			{
+				continue;
+			}
+
+			if (type == 0)//物品
+			{
+				if (!(hp == mp && mp == fp && fp == 0))
+				{
+					continue;
+				}
+				DWORD nameAddr = this->pkg->GetItemName(goodid);
+				if (nameAddr == 0)
+				{
+					continue;
+				}
+				DWORD itemId = *(PDWORD)nameAddr;
+				if (itemId == 0)
+				{
+					continue;
+				}
+				PBYTE B_id = (PBYTE)(member + SURROUND_MEMEBER_ID);
+				tmp.Format(L"物品 %x  %08x  %s(%d) %02x%02x%02x%02x   id:%d  %d far:%.1f", member, memberId, A2W((PCHAR)(nameAddr + 4)), lvl, B_id[0], B_id[1], B_id[2], B_id[3], type, goodid, far_away);
+			}
+			else if (type == 999) {//怪物
+				if ((hp == 1 && mp == -1) || hp <= 0)
+				{
+					//过滤NPC           
+					continue;
+				}
+				/*	 2a4f414 | (null) | Ꞔ | 0 | 3418 | 100 | 397 | 8493.9 | 3356.7*/
+				tmp.Format(L"怪物 %x  %08x  %s(%d)h:%d m:%d f:%d   %d   %d far:%.1f", member, memberId, A2W(name), lvl, hp, mp, fp, type, goodid, far_away);
+			}
+			else if (type != 999 && type != 0)
+			{
+				//其他东西
+				tmp.Format(L"其他 %x  %08x  (%d)h:%d m:%d f:%d   %d   %d", member, memberId, lvl, hp, mp, fp, type, goodid);
+			}
+
+			if (!tmp.IsEmpty())
+			{
+				info.Append(tmp);
+				info.Append(_T("\r\n"));
+			}
+			index++;
+		}
+		catch (const std::exception&)
 		{
 			continue;
 		}
 
-		assertTmp1 = *((LPDWORD)(assertTmp0 + 0xCC));
-		if (assertTmp1 == 0)
-		{
 
-			continue;
-		}
-		assertTmp2 = *((LPDWORD)(member + 0x170));
-		if (assertTmp2 != 0x5)
-		{
-			continue;
-		}
-		assertTmp3 = *((LPDWORD)(dw_SURROUND_TMP_1));//39 3D ?? ?? ?? ?? 75 0C 39 35 ?? ?? ?? ?? 0F 85 ?? ?? ?? ?? 83 4D EC FF 
-		assertTmp4 = *((LPDWORD)(dw_SURROUND_TMP_2));//39 35 ?? ?? ?? ?? 0F 85 ?? ?? ?? ?? 83 4D EC FF D9 05 ?? ?? ?? ?? D9 5D E0 
-		if (assertTmp3 == member && assertTmp4 == 0)
-		{
-			continue;
-		}
-
-		PCHAR name = (PCHAR)(member + PLAY_OFFSET_NAME);
-		DWORD hp = *((LPDWORD)(member + PLAY_OFFSET_HP));
-		DWORD mp = *((LPDWORD)(member + PLAY_OFFSET_MP));
-		DWORD fp = *((LPDWORD)(member + PLAY_OFFSET_FP));
-		FLOAT x = *((PFLOAT)(member + PLAY_OFFSET_X));
-		FLOAT y = *((PFLOAT)(member + PLAY_OFFSET_Y));
-		FLOAT z = *((PFLOAT)(member + PLAY_OFFSET_Z));
-		DWORD lvl = *((LPDWORD)(member + PLAY_OFFSET_LEVEL));
-		FLOAT far_away = *((PFLOAT)(member + SURROUND_FARAWAY));
-		DWORD gm = *((LPDWORD)(member + PLAY_OFFSET_GM));
-		DWORD monster_sign = *((LPDWORD)(member + 0x2f0));
-		//(LPCWCHAR)name,
-	/*	 2a4f414 | (null) | Ꞔ | 0 | 3418 | 100 | 397 | 8493.9 | 3356.7*/
-		tmp.Format(L"%x %x %s(%d)h:%d m:%d f:%d  x:%.1f z:%.1f y%.1f s:%.1f   gm:%d", member, monster_sign, A2W(name), lvl, hp, mp, fp, x, z, y, far_away, gm);
-		info.Append(tmp);
-		info.Append(_T("\r\n"));
-		index++;
 	}
 	AddLog(info);
 	info.Format(L"对象数量%d 共：%d", maxMembers, index);
@@ -770,7 +830,7 @@ void FF_Dlg::OnBnClickedButtonSurround()
 
 }
 
- 
+
 
 
 
@@ -885,46 +945,17 @@ void FF_Dlg::FillJobSkillLvl()
 
 	jobMap.insert(make_pair(3, doctor_v));
 	jobNameMap.insert(std::make_pair(3, L"圣职"));
-	fubenPickUpMap.insert(std::make_pair(60211, L"首饰金片"));
-	fubenPickUpMap.insert(std::make_pair(63610, L"祭坛积分"));
-	fubenPickUpMap.insert(std::make_pair(10270, L"力量之石"));
-	fubenPickUpMap.insert(std::make_pair(10431, L"复活卷轴"));
-	fubenPickUpMap.insert(std::make_pair(10218, L"无敌技能券"));
-	fubenPickUpMap.insert(std::make_pair(63459, L"黑货券"));
-
-	equipments.insert(std::make_pair(0, L"戒指"));
-	equipments.insert(std::make_pair(1, L"戒指"));
-	equipments.insert(std::make_pair(42, L"耳环"));
-	equipments.insert(std::make_pair(52, L"耳环"));
-	equipments.insert(std::make_pair(181, L"项链"));
-	equipments.insert(std::make_pair(176, L"眼睛"));
-	equipments.insert(std::make_pair(53, L"勋章"));
-	equipments.insert(std::make_pair(15, L"飞行器"));
-
-	equipments.insert(std::make_pair(183, L"武器"));
-	equipments.insert(std::make_pair(185, L"盾牌"));
-	equipments.insert(std::make_pair(187, L"帽子"));
-	equipments.insert(std::make_pair(2, L"衣服"));
-	equipments.insert(std::make_pair(85, L"披风"));
-	equipments.insert(std::make_pair(89, L"手套"));
-	equipments.insert(std::make_pair(172, L"鞋子"));
-	equipments.insert(std::make_pair(14, L"时装帽子"));
-	equipments.insert(std::make_pair(127, L"时装鞋子"));
-	equipments.insert(std::make_pair(36, L"时装衣服"));
-	equipments.insert(std::make_pair(133, L"时装手套"));
-
-
 
 }
 
- 
 
 
 
 
 
 
- 
+
+
 
 FF_Dlg* ff_dlg;
 BOOL FF_Dlg::OnInitDialog()
@@ -952,7 +983,7 @@ BOOL FF_Dlg::OnInitDialog()
 		m_ListCtrl_sends.InsertColumn(0, _T("index"), LVCFMT_LEFT, 40);
 		m_ListCtrl_sends.InsertColumn(1, _T("len"), LVCFMT_LEFT, 40);
 		m_ListCtrl_sends.InsertColumn(2, _T("content"), LVCFMT_LEFT, 290);
-		m_ListCtrl_sends.InsertColumn(3, _T("calladdr"), LVCFMT_LEFT, 90);
+		m_ListCtrl_sends.InsertColumn(3, _T("client"), LVCFMT_LEFT, 90);
 		m_ListCtrl_sends.SetExtendedStyle(LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT);
 		for (auto item : current)
 		{
@@ -960,9 +991,6 @@ BOOL FF_Dlg::OnInitDialog()
 		}
 		this->m_combox_skills.SetCurSel(3);
 		SetTimer(AUTO_REFRESH_INFO, 300, NULL);
-
-
-
 	}
 	else {
 		AddLog(L"请选择角色后 重新启动 外挂");
@@ -972,7 +1000,7 @@ BOOL FF_Dlg::OnInitDialog()
 			pwndctrl->EnableWindow(FALSE);
 			pwndctrl = GetNextDlgTabItem(pwndctrl);
 		}
-	} 
+	}
 	return TRUE;
 }
 HANDLE gmDetectThread = NULL;
@@ -1147,50 +1175,7 @@ void FF_Dlg::OnBnClickedCheckSilent()
 }
 
 
-void FF_Dlg::OnBnClickedButtonAgiAdd()
-{
-	if (this->player_instance->GetPotential() == 0)
-	{
-		AddLog(L"没有可用潜能点了");
-		return;
-	}
-	this->player_instance->AddPoint(AGILE);
-	// TODO: 在此添加控件通知处理程序代码
-}
 
-
-void FF_Dlg::OnBnClickedButtonStrAdd()
-{
-	if (this->player_instance->GetPotential() == 0)
-	{
-		AddLog(L"没有可用潜能点了");
-		return;
-	}
-	this->player_instance->AddPoint(STRONG);
-
-}
-
-
-void FF_Dlg::OnBnClickedButtonIntAdd()
-{
-	if (this->player_instance->GetPotential() == 0)
-	{
-		AddLog(L"没有可用潜能点了");
-		return;
-	}
-	this->player_instance->AddPoint(INTELLECT);
-
-}
-
-
-void FF_Dlg::OnBnClickedButtonVitAdd()
-{
-	if (this->player_instance->GetPotential() == 0)
-	{
-		AddLog(L"没有可用潜能点了");
-	}
-	this->player_instance->AddPoint(VITALITY);
-}
 
 
 
@@ -1384,85 +1369,123 @@ void FF_Dlg::OnBnClickedButtonFuben()
 
 void FF_Dlg::OnBnClickedButtonTest()
 {
-	CString item;
-	for (auto kv : SignaturesDataSingleton::getInstance().GetAllSignatureValue())
+	/*
+
+		004C282D   | 8D45 F4                   | lea eax,dword ptr ss:[ebp-0xC]                              |
+		004C2830   | 64:A3 00000000            | mov dword ptr fs:[0],eax                                    |
+		004C2836   | 898D 30FEFFFF             | mov dword ptr ss:[ebp-0x1D0],ecx                            |
+		004C283C   | FF75 08                   | push dword ptr ss:[ebp+0x8]                                 | 技能id
+		004C283F   | B9 509AA000               | mov ecx,neuz.A09A50                                         | 文件资源信息  这个参数和 物品名称call  一样 GET_ITEM_NAME_PARAM1
+		004C2844   | E8 A71CF5FF               | call 0x4144F0                                               | 获取技能信息call
+
+	*/
+
+	USES_CONVERSION;
+
+	for (size_t i = 1; i < 350; i++)
 	{
-		item.Format(L"%s  %x \n", CString(kv.first.c_str()), kv.second);
-		AddLog(item);
+		DWORD nameAddr = { 0 };
+		__asm {
+			pushad
+			pushfd
+			push i
+			mov ecx, GET_ITEM_NAME_PARAM1
+			mov eax, GET_SKILL_NAME_BY_ID
+			call eax
+			mov nameAddr, eax
+			popfd
+			popad
+		}
+		if (nameAddr == NULL || IsBadReadPtr((PVOID)nameAddr, 0x8) || nameAddr == 0xcccccccc)
+		{
+			continue;
+		}
+
+		DWORD skillId = *(PDWORD)(nameAddr);
+		if (skillId == 0)
+		{
+			continue;
+		}
+
+		CString result;
+		result.Format(L"id:%d  %s ", skillId, A2W((PCHAR)(nameAddr + 4)));
+		AddLog(result);
 	}
+
+
 }
 
-
+//自动采矿
 void FF_Dlg::OnBnClickedButtonGetKuang()
 {
-	if (!this->player_instance->init())
-	{
-		return;
-	}
-	DWORD picked;
-	DWORD lingshou = this->surround->GetCloseToMonster(15);
-	if (lingshou == NULL)
-	{
-		return;
-	}
-	DWORD hp = *((LPDWORD)(lingshou + PLAY_OFFSET_HP));
-	DWORD lvl = *((LPDWORD)(lingshou + PLAY_OFFSET_LEVEL));
-	if (lvl != 15)
-	{
-		return;
-	}
-	picked = this->surround->PickMonster(lingshou);
-	if (picked <= 0)
-	{
-		return;
-	}
-	picked = this->surround->GetPicked();
-	if (hp > 0)
-	{
-		//先穿装备F8
-		this->UseWeapon(7, 183);
-		DWORD local_dw_SKILL_PARAM1 = dw_SKILL_PARAM1;
-		DWORD local_dw_SKILL_CALL = dw_SKILL_CALL;
-		DWORD skill_index = 9;
-		for (size_t i = 0; i < 100; i++)
-		{
-			hp = *((LPDWORD)(lingshou + PLAY_OFFSET_HP));
-			picked = this->surround->GetPicked();
-			if (hp == 0 || picked == NULL)
-			{
-				break;
-			}
-			__asm {
-				pushad
-				pushfd
-				push skill_index
-				mov ecx, local_dw_SKILL_PARAM1 //3B 3D ?? ?? ?? ?? 75 0A B9 ?? ?? ?? ?? E8 ?? ?? ?? ?? 8B 47 ?? 2B 47 ?? 53 33 DB 
-				mov ecx, [ecx]
-				push 0
-				mov eax, local_dw_SKILL_CALL //E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 83 F8 0B 0F 85 ?? ?? ?? ?? A1 ?? ?? ?? ?? 8B 70 ?? E8 ?? ?? ?? ?? FF 73 ?? 8B 48 ?? E8 ?? ?? ?? ?? 8B 4B ?? 83 C1 FB 83 F9 01 
-				call eax
-				popfd
-				popad
-			}
-			Sleep(1000);
-		}
-		Sleep(2000);
-		picked = this->surround->PickMonster(lingshou);
-		Sleep(1000);
-		this->UseWeapon(5, 183);
-		Sleep(1000);
-		this->pkg->QuickUse(6);
-		Sleep(1000);
-		picked = this->surround->GetPicked();
-		this->pkg->QuickUse(6);
-		Sleep(1000);
-		this->pkg->QuickUse(6);
-		while (picked != NULL)
-		{
-			picked = this->surround->GetPicked();
-			Sleep(2000);
-		}
-	}
+	//if (!this->player_instance->init())
+	//{
+	//	return;
+	//}
+	//DWORD picked;
+	//DWORD lingshou = this->surround->GetCloseToMonster(15);
+	//if (lingshou == NULL)
+	//{
+	//	return;
+	//}
+	//DWORD hp = *((LPDWORD)(lingshou + PLAY_OFFSET_HP));
+	//DWORD lvl = *((LPDWORD)(lingshou + PLAY_OFFSET_LEVEL));
+	//if (lvl != 15)
+	//{
+	//	return;
+	//}
+	//picked = this->surround->PickMonster(lingshou);
+	//if (picked <= 0)
+	//{
+	//	return;
+	//}
+	//picked = this->surround->GetPicked();
+	//if (hp > 0)
+	//{
+	//	//先穿装备F8
+	//	this->UseWeapon(7, 183);
+	//	DWORD local_dw_SKILL_PARAM1 = dw_SKILL_PARAM1;
+	//	DWORD local_dw_SKILL_CALL = dw_SKILL_CALL;
+	//	DWORD skill_index = 9;
+	//	for (size_t i = 0; i < 100; i++)
+	//	{
+	//		hp = *((LPDWORD)(lingshou + PLAY_OFFSET_HP));
+	//		picked = this->surround->GetPicked();
+	//		if (hp == 0 || picked == NULL)
+	//		{
+	//			break;
+	//		}
+	//		__asm {
+	//			pushad
+	//			pushfd
+	//			push skill_index
+	//			mov ecx, local_dw_SKILL_PARAM1 //3B 3D ?? ?? ?? ?? 75 0A B9 ?? ?? ?? ?? E8 ?? ?? ?? ?? 8B 47 ?? 2B 47 ?? 53 33 DB 
+	//			mov ecx, [ecx]
+	//			push 0
+	//			mov eax, local_dw_SKILL_CALL //E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 83 F8 0B 0F 85 ?? ?? ?? ?? A1 ?? ?? ?? ?? 8B 70 ?? E8 ?? ?? ?? ?? FF 73 ?? 8B 48 ?? E8 ?? ?? ?? ?? 8B 4B ?? 83 C1 FB 83 F9 01 
+	//			call eax
+	//			popfd
+	//			popad
+	//		}
+	//		Sleep(1000);
+	//	}
+	//	Sleep(2000);
+	//	picked = this->surround->PickMonster(lingshou);
+	//	Sleep(1000);
+	//	this->UseWeapon(5, 183);
+	//	Sleep(1000);
+	//	this->pkg->QuickUse(6);
+	//	Sleep(1000);
+	//	picked = this->surround->GetPicked();
+	//	this->pkg->QuickUse(6);
+	//	Sleep(1000);
+	//	this->pkg->QuickUse(6);
+	//	while (picked != NULL)
+	//	{
+	//		picked = this->surround->GetPicked();
+	//		Sleep(2000);
+	//	}
+	//}
 
 
 	// TODO: 在此添加控件通知处理程序代码
@@ -1507,52 +1530,6 @@ void FF_Dlg::OnBnClickedCheckKuang()
 
 
 
-_declspec(naked)  void MyJmp() {
-
-
-	__asm {
-
-		pushad
-		pushfd
-
-		cmp dword ptr ds : [ecx + 0x4] , 0x0
-		je A
-
-		mov edx, [ecx + 0x4]
-		mov edx, [edx]
-		mov edx, [edx + 0x28]
-		mov callAddr, edx
-		lea eax, [esp + 0x24]
-		mov ebx, [eax + 0x4] //包内容
-		mov ecx, [eax + 0x8] //包长
-		mov len, ecx
-		push ecx
-		push ebx
-		push content
-		call memmove
-		add esp, 0xc
-		A:
-			popfd
-			popad
-
-
-
-		cmp dword ptr ds : [ecx + 0x4] , 0x0
-		je case2
-		mov flags, 1
-
-		case1 :
-			jmp go_on2
-		case2 :
-			jmp go_on1
-
-
-
-	}
-
-
-
-}
 
 static UINT SendMsgThread(LPVOID lparam) {
 	FF_Dlg* m_ff_Dlg = (FF_Dlg*)lparam;
@@ -1588,7 +1565,7 @@ static UINT SendMsgThread(LPVOID lparam) {
 
 			m_ff_Dlg->m_ListCtrl_sends.PostMessageW(WM_UPDATEDATA, FALSE, NULL);
 			m_ff_Dlg->m_ListCtrl_sends.PostMessageW(WM_VSCROLL, SB_BOTTOM, 0);
-			//PostMessage(m_ff_Dlg->m_hWnd, WM_UPDATEDATA, FALSE, NULL);
+			PostMessage(m_ff_Dlg->m_hWnd, WM_UPDATEDATA, FALSE, NULL);
 			flags = 0;
 			cs_content = "";
 		}
@@ -1599,7 +1576,45 @@ static UINT SendMsgThread(LPVOID lparam) {
 
 
 }
+void _stdcall WsaLog(HookContext* context) {
+	/*
+		0074E0C0 | 55 | push ebp |
+		0074E0C1 | 8BEC | mov ebp, esp |
+		0074E0C3 | 51 | push ecx |
+		0074E0C4 | 894D FC | mov dword ptr ss : [ebp - 0x4] , ecx |
+		0074E0C7 | 8B45 FC | mov eax, dword ptr ss : [ebp - 0x4] | eax = [9fc508 + 0x4]
+		0074E0CA | 8378 04 00 | cmp dword ptr ds : [eax + 0x4] , 0x0 |
+		0074E0CE | 74 1F | je 0x74E0EF |                        要Hook的地址
+		0074E0D0 | FF75 10 | push dword ptr ss : [ebp + 0x10] | 固定值1
+		0074E0D3 | FF75 0C | push dword ptr ss : [ebp + 0xC] | 包长
+		0074E0D6 | FF75 08 | push dword ptr ss : [ebp + 0x8] | 包内容
+		0074E0D9 | 8B45 FC | mov eax, dword ptr ss : [ebp - 0x4] | eax = [9fc508 + 0x4]
+		0074E0DC | 8B40 04 | mov eax, dword ptr ds : [eax + 0x4] | eax = [[9fc508 + 0x4]+ 0x4]
+		0074E0DF | 8B4D FC | mov ecx, dword ptr ss : [ebp - 0x4] | ecx = [9fc508 + 0x4]
+		0074E0E2 | 8B49 04 | mov ecx, dword ptr ds : [ecx + 0x4] | ecx = [[9fc508 + 0x4]+ 0x4]
+		0074E0E5 | 8B00 | mov eax, dword ptr ds : [eax] | eax = [[[9fc508 + 0x4]+ 0x4] ]
+		0074E0E7 | FF50 28 | call dword ptr ds : [eax + 0x28] | 发包封装函数 [[[9fc508 + 0x4]+ 0x4] ] + 0x28
+		0074E0EA | 33C0 | xor eax, eax |
+		0074E0EC | 40 | inc eax |
+		0074E0ED | EB 02 | jmp 0x74E0F1 |
+		0074E0EF | 33C0 | xor eax, eax |
+		0074E0F1 | C9 | leave |
+		0074E0F2 | C2 0C00 | ret 0xC |
+	*/
+	if (context->EBP == 0)
+	{
+		return;
+	}
+	len = *(PDWORD)(context->EBP + 0xc); //包长
+	if (len > 0)
+	{
+		PVOID contentAddr = (PVOID) * (PDWORD)(context->EBP + 0x8); //包内容 
+		callAddr = context->EAX;
+		memmove((PVOID)content, contentAddr, len);
+		flags = 1;
+	}
 
+}
 void FF_Dlg::OnBnClickedButtonHook()
 {
 	DWORD dw_old;
@@ -1608,8 +1623,9 @@ void FF_Dlg::OnBnClickedButtonHook()
 	{
 		return;
 	}
+	memset((PVOID)content, 0xcc, 0x1000);
 	//0x005DC834
-	bool hookRet = inlinehook.Hook((FARPROC)dw_HOOK_SEND_CALL, (FARPROC)MyJmp);
+	bool hookRet = inlinehook.Hook(dw_HOOK_WSASEND, WsaLog);
 	if (!hookRet)
 	{
 		AddLog(L"hook failed");
@@ -1626,7 +1642,7 @@ void FF_Dlg::OnBnClickedButtonClear()
 {
 	pindex = 0;
 	m_ListCtrl_sends.DeleteAllItems();
-
+	m_edit_logs.Empty();
 	// TODO: 在此添加控件通知处理程序代码
 }
 
@@ -1642,8 +1658,57 @@ void FF_Dlg::OnNMDblclkListSends(NMHDR* pNMHDR, LRESULT* pResult)
 	*pResult = 0;
 
 }
+int FF_Dlg::WSASendCall(PUCHAR buffer, int bufferLength) {
 
-
+	/*  发包原始函数  //89 4D ?? 8B 45 ?? 83 78 ?? 00 74 1F FF 75 ?? FF 75 ?? FF 75 ?? 8B 45 ?? 8B 40 ?? 8B 4D ?? 8B 49 ?? 8B 00 FF 50 ??
+		0074E0C0   | 55                       | push ebp                                                                                                                 |
+		0074E0C1   | 8BEC                     | mov ebp,esp                                                                                                              |
+		0074E0C3   | 51                       | push ecx                                                                                                                 |
+		0074E0C4   | 894D FC                  | mov dword ptr ss:[ebp-0x4],ecx                                                                                           |
+		0074E0C7   | 8B45 FC                  | mov eax,dword ptr ss:[ebp-0x4]                                                                                           | eax=[9fc508+0x4]
+		0074E0CA   | 8378 04 00               | cmp dword ptr ds:[eax+0x4],0x0                                                                                           |
+		0074E0CE   | 74 1F                    | je 0x74E0EF   //HOOK 地址                                                                                                |
+		0074E0D0   | FF75 10                  | push dword ptr ss:[ebp+0x10]                                                                                             | 固定值1
+		0074E0D3   | FF75 0C                  | push dword ptr ss:[ebp+0xC]                                                                                              | 包长
+		0074E0D6   | FF75 08                  | push dword ptr ss:[ebp+0x8]                                                                                              | 包内容
+		0074E0D9   | 8B45 FC                  | mov eax,dword ptr ss:[ebp-0x4]                                                                                           | eax=[9fc508+0x4]
+		0074E0DC   | 8B40 04                  | mov eax,dword ptr ds:[eax+0x4]                                                                                           | eax=[[9fc508+0x4]+0x4]
+		0074E0DF   | 8B4D FC                  | mov ecx,dword ptr ss:[ebp-0x4]                                                                                           | ecx=[9fc508+0x4]
+		0074E0E2   | 8B49 04                  | mov ecx,dword ptr ds:[ecx+0x4]                                                                                           | ecx=[[9fc508+0x4]+0x4]
+		0074E0E5   | 8B00                     | mov eax,dword ptr ds:[eax]                                                                                               | eax=[[[9fc508+0x4]+0x4]]
+		0074E0E7   | FF50 28                  | call dword ptr ds:[eax+0x28]                                                                                             | 发包封装函数  [[[9fc508+0x4]+0x4]]+0x28
+		0074E0EA   | 33C0                     | xor eax,eax                                                                                                              |
+		0074E0EC   | 40                       | inc eax                                                                                                                  |
+		0074E0ED   | EB 02                    | jmp 0x74E0F1                                                                                                             |
+		0074E0EF   | 33C0                     | xor eax,eax                                                                                                              |
+		0074E0F1   | C9                       | leave                                                                                                                    |
+		0074E0F2   | C2 0C00                  | ret 0xC                                                                                                                  |
+	*/
+	unsigned int socketClient = 0x9fc508;
+	//9fc508 + 0x4
+	unsigned int ClientOffset = socketClient + 0x4;
+	//[9fc508 + 0x4]
+	unsigned int offset_4 = *(reinterpret_cast<unsigned int*>(ClientOffset));
+	//[[9fc508 + 0x4]+ 0x4]
+	unsigned int ecxVal = *(reinterpret_cast<unsigned int*>(offset_4 + 0x4));
+	//0074E0E5 | 8B00 | mov eax, dword ptr ds : [eax] | eax = [[[9fc508 + 0x4]+ 0x4] ]
+	unsigned int eaxVal = *(reinterpret_cast<unsigned int*>(ecxVal));
+	//发包封装函数 [[[9fc508 + 0x4]+ 0x4] ] + 0x28
+	unsigned int callAddr = *(reinterpret_cast<unsigned int*>(eaxVal + 0x28));
+	__asm {
+		pushad
+		pushfd
+		push 0x1
+		push bufferLength
+		push buffer
+		mov eax, callAddr
+		mov ecx, ecxVal
+		call eax
+		popfd
+		popad
+	}
+}
+//发包
 void FF_Dlg::OnBnClickedButtonSend()
 {
 	CString  str_content;
@@ -1659,22 +1724,23 @@ void FF_Dlg::OnBnClickedButtonSend()
 		sscanf_s(str_buffer.c_str(), "%x", &(Bytes[i]));
 	}
 	DWORD  pStart = (DWORD)&Bytes;
-	DWORD local_dw_SOCKET_SEND_PARAM1 = dw_SOCKET_SEND_PARAM1;
-	DWORD local_dw_SOCKET_SEND_CALL = dw_SOCKET_SEND_CALL;
-	__asm {
-		pushad
-		pushfd
-		push 0x1
-		push ByteLength
-		push pStart
-		mov ecx, local_dw_SOCKET_SEND_PARAM1
-		mov ecx, [ecx + 0x4]
-		mov eax, local_dw_SOCKET_SEND_CALL
-		call eax
-		popfd
-		popad
+	WSASendCall((PUCHAR)pStart, ByteLength);
+	//DWORD local_dw_SOCKET_SEND_PARAM1 = dw_SOCKET_SEND_PARAM1;
+	//DWORD local_dw_SOCKET_SEND_CALL = dw_SOCKET_SEND_CALL;
+	//__asm {
+	//	pushad
+	//	pushfd
+	//	push 0x1
+	//	push ByteLength
+	//	push pStart
+	//	mov ecx, local_dw_SOCKET_SEND_PARAM1
+	//	mov ecx, [ecx + 0x4]
+	//	mov eax, local_dw_SOCKET_SEND_CALL
+	//	call eax
+	//	popfd
+	//	popad
 
-	}
+	//}
 	// TODO: 在此添加控件通知处理程序代码
 }
 
@@ -1722,7 +1788,7 @@ void FF_Dlg::OnBnClickedButtonUnhook()
 }
 
 
- 
+
 
 
 void FF_Dlg::OnBnClickedButtonCollectMonster()
@@ -1795,7 +1861,7 @@ void FF_Dlg::OnBnClickedButtonCollectMonster()
 		}
 		DWORD picked = this->surround->PickMonsterFly(member);
 		picked = this->surround->GetPicked();
-		if (picked>0)
+		if (picked > 0)
 		{
 			DWORD monster_real = *(PDWORD)(picked + 0x2f0);
 
@@ -1817,8 +1883,8 @@ void FF_Dlg::OnBnClickedButtonCollectMonster()
 		}
 		index++;
 	}
- 
 
- 
+
+
 
 }

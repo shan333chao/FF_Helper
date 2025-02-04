@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable FerryEngineTableVersion="45">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>3</ID>
+      <Description>"HP"</Description>
+      <LastState Value="1459" RealAddress="04643040"/>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>4 Bytes</VariableType>
+      <Address>Neuz.exe+4A7F30</Address>
+      <Offsets>
+        <Offset>e28</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>55</ID>
+      <Description>"移动速度"</Description>
+      <LastState Value="2524" RealAddress="04643EAC"/>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>4 Bytes</VariableType>
+      <Address>Neuz.exe+4A7F30</Address>
+      <Offsets>
+        <Offset>1c94</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>53</ID>
+      <Description>"基地址1"</Description>
+      <LastState Value="04642218" RealAddress="008A7F30"/>
+      <ShowAsHex>1</ShowAsHex>
+      <VariableType>4 Bytes</VariableType>
+      <Address>Neuz.exe+4A7F30</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>4</ID>
+      <Description>"基地址2"</Description>
+      <LastState Value="04642218" RealAddress="00A36B28"/>
+      <ShowAsHex>1</ShowAsHex>
+      <VariableType>4 Bytes</VariableType>
+      <Address>Neuz.exe+636B28</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>54</ID>
+      <Description>"移动速度"</Description>
+      <LastState Value="2524" RealAddress="04643EAC"/>
+      <VariableType>4 Bytes</VariableType>
+      <Address>04643EAC</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>57</ID>
+      <Description>"攻击速率"</Description>
+      <LastState Value="0" RealAddress="04643F4C"/>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>4 Bytes</VariableType>
+      <Address>Neuz.exe+4A7F30</Address>
+      <Offsets>
+        <Offset>33*4+1c68</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>58</ID>
+      <Description>"无描述"</Description>
+      <LastState Value="1000" RealAddress="04643AF0"/>
+      <VariableType>4 Bytes</VariableType>
+      <Address>04643AF0</Address>
+    </CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols/>
+</CheatTable>

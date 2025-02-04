@@ -1,15 +1,14 @@
 #pragma once
 #include "ff_offset.h"
 #include "TIMER_EVENT.h"
-#include "SignaturesDataSingleton.h"
+
 class player
 {
 private:
-	DWORD dw_MAIN_OFFSET_BASE = SignaturesDataSingleton::getInstance().GetAddressByKey("MAIN_OFFSET_BASE");
-	DWORD dw_ADD_POINT_PARAM1 = SignaturesDataSingleton::getInstance().GetAddressByKey("ADD_POINT_PARAM1");
-	DWORD dw_ADD_POINT_CALL = SignaturesDataSingleton::getInstance().GetAddressByKey("ADD_POINT_CALL");
-	DWORD dw_TEAM_SKILL_PARAM1 = SignaturesDataSingleton::getInstance().GetAddressByKey("TEAM_SKILL_PARAM1");
-	DWORD dw_TEAM_SKILL_CALL = SignaturesDataSingleton::getInstance().GetAddressByKey("TEAM_SKILL_CALL");
+	DWORD dw_MAIN_OFFSET_BASE = MAIN_OFFSET_BASE;
+ 
+	DWORD dw_TEAM_SKILL_PARAM1 = 0x0;
+	DWORD dw_TEAM_SKILL_CALL = 0x0;
 	DWORD hp{};
 	DWORD mp{};
 	DWORD fp{};
@@ -32,7 +31,7 @@ public:
 	DWORD GetHp();
 	DWORD GetMp();
 	DWORD GetFp();
-	DWORD GetPotential();
+ 
 	DWORD GetJobType();
 	void UpdatePos();
 	CString GetPlayName();

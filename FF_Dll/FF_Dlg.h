@@ -84,10 +84,7 @@ public:
 	// 静默模式
 	CButton m_checkbox_silent;
 	afx_msg void OnBnClickedCheckSilent();
-	afx_msg void OnBnClickedButtonAgiAdd();
-	afx_msg void OnBnClickedButtonStrAdd();
-	afx_msg void OnBnClickedButtonIntAdd();
-	afx_msg void OnBnClickedButtonVitAdd();
+ 
 	CButton m_checkbox_atk;
 
 
@@ -118,6 +115,7 @@ public:
  
 	afx_msg void OnBnClickedButtonClear();
 	afx_msg void OnNMDblclkListSends(NMHDR* pNMHDR, LRESULT* pResult);
+	int WSASendCall(PUCHAR buffer, int bufferLength);
 	afx_msg void OnBnClickedButtonSend();
 	CEdit m_edit_buffers;
 	CButton m_checkbox_hook_atk;

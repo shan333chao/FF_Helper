@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "Surround.h"
 #include "ff_offset.h"
-#include "SignaturesDataSingleton.h"
+
 
 DWORD Surround::GetMaxMembers()
 {
@@ -95,23 +95,28 @@ DWORD Surround::PickMonster(DWORD monster)
 	{
 		return 0;
 	}
-	//| push 0x1      | 0x1
-	//| push esi		| 怪物对象
-	//| mov ecx, edi  | [00848CCC]
-	//| call 0x5B4F55 | 选中
+	/*
+		004F2638 | 6A 01 | push 0x1 | 固定值
+		004F263A | FF75 F4 | push dword ptr ss : [ebp - 0xC] | 要选的的周围对象
+		004F263D | 8B4D FC | mov ecx, dword ptr ss : [ebp - 0x4] | 选中容器[0xA06788 + 0x14]
+		004F2640 | E8 2DC92200 | call 0x71EF72 |
+		004F2645 | 8B45 F4 | mov eax, dword ptr ss : [ebp - 0xC] |
+		004F2648 | C9 | leave |
+	*/
+
 
 	DWORD tmpMonster = monster;
 	DWORD result{};
-	DWORD local_dw_PICK_TARGET_BASE = dw_PICK_TARGET_BASE;
-	DWORD local_dw_PICK_MONSTER_CALL = dw_PICK_MONSTER_CALL;
+	//选中容器
+	DWORD local_dw_PICK_TARGET_BASE = *(PDWORD)(ATK_SELECTED_BASE + 0x14);
+	DWORD local_dw_PICK_MONSTER_CALL = PICK_SURROUND_ITEM;
 	__asm {
 		pushad
 		pushfd
 		push 0x1
 		push tmpMonster
 		mov ecx, local_dw_PICK_TARGET_BASE
-		mov ecx, [ecx]
-		mov eax, local_dw_PICK_MONSTER_CALL //E8 ?? ?? ?? ?? 8B C6 5F 5E 5B C2 08 00 55 8B EC 83 EC 1C A1 ?? ?? ?? ?? 
+		mov eax, local_dw_PICK_MONSTER_CALL
 		call eax
 		mov result, eax
 		popfd
@@ -152,6 +157,57 @@ DWORD Surround::GetPicked()
 
 	basePicked = *((LPDWORD)(basePicked + PICK_TARGET_OFFSET));
 	return basePicked;
+}
+/// <summary>
+/// 计算平方根
+/// </summary>
+/// <param name="number"></param>
+/// <returns></returns>
+static float Q_rsqrt(float number) {
+	long i;
+	float x2, y;
+	const float threehalfs = 1.5F;
+
+	x2 = number * 0.5F;
+	y = number;
+	i = *(long*)&y;            // 浮点数的位模式转为整数
+	i = 0x5F3759DF - (i >> 1); // 魔法数初始猜测
+	y = *(float*)&i;           // 整数转回浮点数
+	y = y * (threehalfs - (x2 * y * y)); // 牛顿迭代
+	// y  = y * (threehalfs - (x2 * y * y)); // 可重复迭代提高精度
+	return y;
+}
+
+// 计算平方根
+static float sqrt_fast(float S) {
+	if (S == 0) return 0;
+	return S * Q_rsqrt(S);
+}
+
+// 计算距离
+static float CalculateDistance_Fast(
+	float x1, float y1, float z1,
+	float x2, float y2, float z2
+) {
+	float dx = x2 - x1;
+	float dy = y2 - y1;
+	float dz = z2 - z1;
+	float sqrSum = dx * dx + dy * dy + dz * dz;
+	return sqrt_fast(sqrSum);
+}
+FLOAT Surround::GetFarAway(DWORD player, DWORD surrountItem)
+{
+	PFLOAT userPos = (PFLOAT)(player + 0x160);
+	PFLOAT item = (PFLOAT)(surrountItem + 0x160);
+	float ux = userPos[0];
+	float uz = userPos[1];
+	float uy = userPos[2];
+
+	float itemx = item[0];
+	float itemz = item[1];
+	float itemy = item[2];
+
+	return CalculateDistance_Fast(ux,uy,uz,itemx,itemy,itemz);
 }
 
 DWORD Surround::PickItem(DWORD itemObj, DWORD playerObj)

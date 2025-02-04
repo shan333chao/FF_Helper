@@ -1,0 +1,286 @@
+新菲菲 
+
+人物模块基地址 偏移  89 4D ?? A1 &?? ?? ?? ?? 89 45 ?? FF ?? ?? E8
+.text:0040A7B0 89 4D F8                                      mov     [ebp+var_8], ecx
+.text:0040A7B3 A1 D0 62 A0 00                                mov     eax, dword_A062D0
+.text:0040A7B8 89 45 FC                                      mov     [ebp+var_4], eax
+.text:0040A7BB FF 75 FC                                      push    [ebp+var_4]
+.text:0040A7BE E8 2A 22 00 00                                call    sub_40C9ED      
+
+
+血量偏移 8B 88 ?? ?? ?? ?? E8 ?? ?? ?? ?? 85 C0 75 ?? 8B 45 ?? 83 B8 ?? ?? ?? ?? ??,20
+
+.text:0045FBE6 55                                            push    ebp
+.text:0045FBE7 8B EC                                         mov     ebp, esp
+.text:0045FBE9 51                                            push    ecx
+.text:0045FBEA 51                                            push    ecx
+.text:0045FBEB 89 4D FC                                      mov     [ebp+var_4], ecx
+.text:0045FBEE 8B 45 FC                                      mov     eax, [ebp+var_4]
+.text:0045FBF1 8B 88 78 04 00 00                             mov     ecx, [eax+478h]
+.text:0045FBF7 E8 22 00 00 00                                call    sub_45FC1E
+.text:0045FBFC 85 C0                                         test    eax, eax
+.text:0045FBFE 75 12                                         jnz     short loc_45FC12
+.text:0045FC00 8B 45 FC                                      mov     eax, [ebp+var_4]
+.text:0045FC03 83 B8 B4 09 00 00 00                          cmp     dword ptr [eax+9B4h], 0      //血量偏移
+.text:0045FC0A 74 06                                         jz      short loc_45FC12
+.text:0045FC0C 83 65 F8 00                                   and     [ebp+var_8], 0
+.text:0045FC10 EB 07                                         jmp     short loc_45FC19
+
+
+怪物遍历时的对象 68 ?? ?? ?? ?? 6A ?? FF ?? ?? ?? ?? ?? 68 ?? ?? ?? ?? FF ?? ?? ?? ?? ?? 
+飞飞怪物,怪物集合,68 ?? ?? ?? ?? 6A ?? FF ?? ?? ?? ?? ?? 68 ?? ?? ?? ?? FF ?? ?? ?? ?? ??,14,4,偏移
+.text:0072476E 68 17 35 72 00                                push    offset sub_723517 ; CompareFunction
+.text:00724773 6A 04                                         push    4               ; SizeOfElements
+.text:00724775 FF 35 98 33 BC 00                             push    NumOfElements   ; NumOfElements
+.text:0072477B 68 78 E5 BB 00                                push    offset dword_BBE578 ; Base
+.text:00724780 FF 15 08 A7 92 00                             call    ds:__imp_qsort
+
+
+
+周围对象获取  
+Neuz.exe+31F8F5 - 8B 04 85 78E5BB00     - mov eax,[eax*4+Neuz.exe+7BE578]
+周围对象最大数量 0071EA82
+Neuz.exe+31F8EA - 3B 05 9833BC00        - cmp eax,[Neuz.exe+7C3398]
+
+
+
+其他血量
+.text:006C4C81 55                                            push    ebp
+.text:006C4C82 8B EC                                         mov     ebp, esp
+.text:006C4C84 51                                            push    ecx
+.text:006C4C85 89 4D FC                                      mov     [ebp+var_4], ecx
+.text:006C4C88 81 7D 08 99 00 00 00                          cmp     [ebp+arg_0], 99h
+.text:006C4C8F 7D 0F                                         jge     short loc_6C4CA0
+.text:006C4C91 8B 45 08                                      mov     eax, [ebp+arg_0]
+.text:006C4C94 8B 4D FC                                      mov     ecx, [ebp+var_4]
+.text:006C4C97 8B 84 81 1C 17 00 00                          mov     eax, [ecx+eax*4+171Ch]
+.text:006C4C9E EB 02                                         jmp     short locret_6C4CA2
+
+
+006C4C97 - 8B 84 81 1C170000  - mov eax,[ecx+eax*4+0000171C] <<  ecx=03689790  eax=64
+
+
+技能信息
+
+004C2844 - E8 A71CF5FF           - call 004144F0
+
+技能call  7C 13 8B 4D ?? 81 C1 84 02 00 00  向上17
+004144F0   | 55                        | push ebp                                                    | 技能call头部
+004144F1   | 8BEC                      | mov ebp,esp                                                 |
+004144F3   | 51                        | push ecx                                                    |
+004144F4   | 894D FC                   | mov dword ptr ss:[ebp-0x4],ecx                              |
+004144F7   | 837D 08 00                | cmp dword ptr ss:[ebp+0x8],0x0                              |
+004144FB   | 7C 13                     | jl 0x414510                                                 |
+004144FD   | 8B4D FC                   | mov ecx,dword ptr ss:[ebp-0x4]                              |
+00414500   | 81C1 84020000             | add ecx,0x284                                               |
+00414506   | E8 A56F2200               | call 0x63B4B0                                               |
+0041450B   | 3945 08                   | cmp dword ptr ss:[ebp+0x8],eax                              |
+0041450E   | 7C 25                     | jl 0x414535                                                 |
+00414510   | FF75 08                   | push dword ptr ss:[ebp+0x8]                                 |
+00414513   | 8B4D FC                   | mov ecx,dword ptr ss:[ebp-0x4]                              |
+00414516   | 81C1 84020000             | add ecx,0x284                                               |
+使用获取技能名称call 
+004C282D   | 8D45 F4                   | lea eax,dword ptr ss:[ebp-0xC]                              |
+004C2830   | 64:A3 00000000            | mov dword ptr fs:[0],eax                                    |
+004C2836   | 898D 30FEFFFF             | mov dword ptr ss:[ebp-0x1D0],ecx                            |
+004C283C   | FF75 08                   | push dword ptr ss:[ebp+0x8]                                 | 技能id
+004C283F   | B9 509AA000               | mov ecx,neuz.A09A50                                         | 文件资源信息  这个参数和 物品名称call  一样 GET_ITEM_NAME_PARAM1
+004C2844   | E8 A71CF5FF               | call 0x4144F0                                               | 获取技能信息call
+
+封包 socket Client  0x9FC508 对象地址  
+.text:00415DA7 55                                            push    ebp
+.text:00415DA8 8B EC                                         mov     ebp, esp
+.text:00415DAA 51                                            push    ecx
+.text:00415DAB 89 4D FC                                      mov     [ebp+var_4], ecx
+.text:00415DAE 83 7D 0C 66                                   cmp     [ebp+arg_4], 66h ; 'f'
+.text:00415DB2 75 16                                         jnz     short loc_415DCA
+.text:00415DB4 B9 08 C5 9F 00                                mov     ecx, offset unk_9FC508 ; 封包socket Client 对象
+
+ 
+发包方法  hook 位置特征 74 1F FF 75 10 FF 75 0C FF 75 08
+
+0074E0C0               | 55                       | push ebp                                   |
+0074E0C1               | 8BEC                     | mov ebp,esp                                |
+0074E0C3               | 51                       | push ecx                                   |
+0074E0C4               | 894D FC                  | mov dword ptr ss:[ebp-0x4],ecx             |
+0074E0C7               | 8B45 FC                  | mov eax,dword ptr ss:[ebp-0x4]             | eax=[9fc508+0x4]
+0074E0CA               | 8378 04 00               | cmp dword ptr ds:[eax+0x4],0x0             |
+0074E0CE               | 74 1F                    | je 0x74E0EF                                |  hook的地址
+0074E0D0               | FF75 10                  | push dword ptr ss:[ebp+0x10]               | 固定值1
+0074E0D3               | FF75 0C                  | push dword ptr ss:[ebp+0xC]                | 包长
+0074E0D6               | FF75 08                  | push dword ptr ss:[ebp+0x8]                | 包内容
+0074E0D9               | 8B45 FC                  | mov eax,dword ptr ss:[ebp-0x4]             | eax=[9fc508+0x4]
+0074E0DC               | 8B40 04                  | mov eax,dword ptr ds:[eax+0x4]             | eax=[[9fc508+0x4]+0x4]
+0074E0DF               | 8B4D FC                  | mov ecx,dword ptr ss:[ebp-0x4]             | ecx=[9fc508+0x4]
+0074E0E2               | 8B49 04                  | mov ecx,dword ptr ds:[ecx+0x4]             | ecx=[[9fc508+0x4]+0x4]
+0074E0E5               | 8B00                     | mov eax,dword ptr ds:[eax]                 | eax=[[[9fc508+0x4]+0x4]]
+0074E0E7               | FF50 28                  | call dword ptr ds:[eax+0x28]               | 发包封装函数  [[[9fc508+0x4]+0x4]]+0x28
+0074E0EA               | 33C0                     | xor eax,eax                                |
+0074E0EC               | 40                       | inc eax                                    |
+0074E0ED               | EB 02                    | jmp 0x74E0F1                               |
+0074E0EF               | 33C0                     | xor eax,eax                                |
+0074E0F1               | C9                       | leave                                      |
+0074E0F2               | C2 0C00                  | ret 0xC                                    |
+
+
+职业类型偏移 PLAY_OFFSET_JOB,职业类型,6A 20 8B 45 ?? FF ?? ?? ?? ?? ??,7,4,偏移
+.text:006C2671 55                                            push    ebp
+.text:006C2672 8B EC                                         mov     ebp, esp
+.text:006C2674 51                                            push    ecx
+.text:006C2675 89 4D FC                                      mov     [ebp+var_4], ecx
+.text:006C2678 8B 45 FC                                      mov     eax, [ebp+var_4]
+.text:006C267B 83 B8 FC 09 00 00 20                          cmp     dword ptr [eax+9FCh], 20h ; ' '
+.text:006C2682 7C 1C                                         jl      short loc_6C26A0
+.text:006C2684 6A 20                                         push    20h ; ' '
+.text:006C2686 8B 45 FC                                      mov     eax, [ebp+var_4]
+.text:006C2689 FF B0 FC 09 00 00                             push    dword ptr [eax+9FCh] ; char //职业类型偏移
+.text:006C268F 68 B8 5E 95 00                                push    offset aDD_15   ; "职业%d超过最大职业%d"
+.text:006C2694 E8 A6 38 08 00                                call    sub_745F3F
+.text:006C2699 83 C4 0C                                      add     esp, 0Ch
+.text:006C269C 33 C0                                         xor     eax, eax
+.text:006C269E EB 1A                                         jmp     short locret_6C26BA
+
+
+角色ID PLAY_OFFSET_ID 偏移   
+.text:0060DDCD 68 C5 02 00 00                                push    2C5h
+.text:0060DDD2 8B 4D E0                                      mov     ecx, [ebp+var_20]
+.text:0060DDD5 E8 56 EE DF FF                                call    sub_40CC30
+.text:0060DDDA 89 45 F0                                      mov     [ebp+var_10], eax
+.text:0060DDDD 68 C6 02 00 00                                push    2C6h
+.text:0060DDE2 8B 4D E0                                      mov     ecx, [ebp+var_20]
+.text:0060DDE5 E8 46 EE DF FF                                call    sub_40CC30
+.text:0060DDEA 89 45 EC                                      mov     [ebp+var_14], eax
+.text:0060DDED A1 D0 62 A0 00                                mov     eax, dword_A062D0
+.text:0060DDF2 FF B0 D4 03 00 00                             push    dword ptr [eax+3D4h]  人物id偏移
+.text:0060DDF8 B9 68 DA BB 00                                mov     ecx, offset dword_BBDA68
+.text:0060DDFD E8 29 E2 EC FF                                call    sub_4DC02B
+.text:0060DE02 50                                            push    eax
+
+人物等级偏移 PLAY_OFFSET_LEVEL
+text:006C2C67 55                                            push    ebp
+.text:006C2C68 8B EC                                         mov     ebp, esp
+.text:006C2C6A 83 EC 2C                                      sub     esp, 2Ch
+.text:006C2C6D 89 4D D4                                      mov     [ebp+var_2C], ecx
+.text:006C2C70 83 65 F8 00                                   and     [ebp+Number], 0
+.text:006C2C74 83 3D 90 6B B1 00 00                          cmp     dword_B16B90, 0
+.text:006C2C7B 7E 12                                         jle     short loc_6C2C8F
+.text:006C2C7D 8B 45 D4                                      mov     eax, [ebp+var_2C]
+.text:006C2C80 8B 0D 90 6B B1 00                             mov     ecx, dword_B16B90
+.text:006C2C86 2B 88 90 09 00 00                             sub     ecx, [eax+990h]   人物等级
+.text:006C2C8C 89 4D F8                                      mov     [ebp+Number], ecx
+.text:006C2C8F
+.text:006C2C8F                               loc_6C2C8F:                             ; CODE XREF: sub_6C2C67+14↑j
+.text:006C2C8F D9 E8                                         fld1
+.text:006C2C91 D9 5D FC                                      fstp    [ebp+var_4]
+.text:006C2C94 83 7D F8 00                                   cmp     [ebp+Number], 0
+.text:006C2C98 7E 5F                                         jle     short loc_6C2CF9
+.text:006C2C9A 8D 45 E4                                      lea     eax, [ebp+var_1C]
+.text:006C2C9D 50                                            push    eax
+.text:006C2C9E B9 94 6B B1 00                                mov     ecx, offset unk_B16B94
+.text:006C2CA3 E8 7D 3B FA FF                                call    sub_666825
+.text:006C2CA8 8B 00                                         mov     eax, [eax]
+.text:006C2CAA 89 45 F4                                      mov     [ebp+var_C], eax
+.text:006C2CAD EB 08                                         jmp     short loc_6C2CB7
+
+
+背包物品
+0051CE0D - 0FBF 80 C8000000  - movsx eax,word ptr [eax+000000C8]  eax= 1EB753D4
+
+0051FD81 - 0FBF B0 C8000000  - movsx esi,word ptr [eax+000000C8]
+0051FFB3 - 66 8B 80 C8000000  - mov ax,[eax+000000C8]
+
+获取物品信息
+
+00404E08   | 55                       | push ebp                                                    | 通过物品ID 获取物品名称call
+00404E09   | 8BEC                     | mov ebp,esp                                                 |
+00404E0B   | 51                       | push ecx                                                    |
+00404E0C   | 894D FC                  | mov dword ptr ss:[ebp-0x4],ecx                              |
+00404E0F   | 837D 08 00               | cmp dword ptr ss:[ebp+0x8],0x0                              |
+00404E13   | 7C 13                    | jl 0x404E28                                                 |
+00404E15   | 8B4D FC                  | mov ecx,dword ptr ss:[ebp-0x4]                              |
+00404E18   | 81C1 60020000            | add ecx,0x260                                               |
+
+call 调用
+00404DEF   | 55                        | push ebp                                                    |
+00404DF0   | 8BEC                      | mov ebp,esp                                                 |
+00404DF2   | 51                        | push ecx                                                    |
+00404DF3   | 894D FC                   | mov dword ptr ss:[ebp-0x4],ecx                              |
+00404DF6   | 8B45 FC                   | mov eax,dword ptr ss:[ebp-0x4]                              |
+00404DF9   | FF70 0C                   | push dword ptr ds:[eax+0xC]                                 | 物品id
+00404DFC   | B9 509AA000               | mov ecx,neuz.A09A50                                         | neuz.A09A50
+00404E01   | E8 02000000               | call 0x404E08                                               | 通过ID获取物品名称
+00404E06   | C9                        | leave                                                       |
+00404E07   | C3                        | ret                                                         |
+
+物品参数基地址特征 neuz.A09A50  
+.text:00423126 55                                            push    ebp
+.text:00423127 8B EC                                         mov     ebp, esp
+.text:00423129 51                                            push    ecx
+.text:0042312A 89 4D FC                                      mov     [ebp+var_4], ecx
+.text:0042312D 68 71 0F 00 00                                push    0F71h
+.text:00423132 B9 50 9A A0 00                                mov     ecx, offset byte_A09A50
+.text:00423137 E8 20 B7 FF FF                                call    sub_41E85C
+.text:0042313C 50                                            push    eax             ; Source
+.text:0042313D 8B 4D FC                                      mov     ecx, [ebp+var_4]
+.text:00423140 E8 7A FF FF FF                                call    sub_4230BF
+.text:00423145 8B 4D FC                                      mov     ecx, [ebp+var_4] ; void *
+.text:00423148 E8 B5 5A 2B 00                                call    sub_6D8C02
+.text:0042314D 33 C0                                         xor     eax, eax
+.text:0042314F 40                                            inc     eax
+.text:00423150 C9                                            leave
+.text:00423151 C3                                            retn
+
+
+
+封包寻怪 选中怪物的ID   ,从发包函数往上找
+
+.text:004509C5 55                                            push    ebp
+.text:004509C6 8B EC                                         mov     ebp, esp
+.text:004509C8 51                                            push    ecx
+.text:004509C9 89 4D FC                                      mov     [ebp+var_4], ecx
+.text:004509CC 6A 01                                         push    1
+.text:004509CE 6A 00                                         push    0
+.text:004509D0 B9 88 67 A0 00                                mov     ecx, offset dword_A06788 ; 选中怪物的ID
+.text:004509D5 E8 D0 AD 1E 00                                call    sub_63B7AA
+.text:004509DA 8B C8                                         mov     ecx, eax
+.text:004509DC E8 91 E5 2C 00                                call    sub_71EF72
+.text:004509E1 C9                                            leave
+.text:004509E2 C2 04 00                                      retn    4
+
+怪物的ID 计算过程
+004CCA2B   | 0F84 E2000000             | je 0x4CCB13                                                 |
+004CCA31   | B9 8867A000               | mov ecx,neuz.A06788                                         |  [[[0xA06788+0x14]+0x20]+0x2F0]=2384  选中怪物id
+004CCA36   | E8 6FED1600               | call 0x63B7AA                                               |
+004CCA3B   | 8BC8                      | mov ecx,eax                                                 |  [[eax+0x20]+0x2F0]=2384
+004CCA3D   | E8 F1272600               | call 0x72F233                                               |
+004CCA42   | 8945 F4                   | mov dword ptr ss:[ebp-0xC],eax                              |
+004CCA45   | 834D F8 FF                | or dword ptr ss:[ebp-0x8],0xFFFFFFFF                        |
+004CCA49   | 837D F4 00                | cmp dword ptr ss:[ebp-0xC],0x0                              |
+004CCA4D   | 74 17                     | je 0x4CCA66                                                 |
+004CCA4F   | 8B4D F4                   | mov ecx,dword ptr ss:[ebp-0xC]                              |
+004CCA52   | E8 2E90F4FF               | call 0x415A85                                               |
+004CCA57   | 85C0                      | test eax,eax                                                |
+004CCA59   | 74 0B                     | je 0x4CCA66                                                 |
+004CCA5B   | 8B4D F4                   | mov ecx,dword ptr ss:[ebp-0xC]                              | 02DA3D74    [ecx+0x2F0]
+004CCA5E   | E8 D561F5FF               | call 0x422C38                                               |
+004CCA63   | 8945 F8                   | mov dword ptr ss:[ebp-0x8],eax                              |
+
+寻找数据 怪物id 在遍历中的运算过程
+
+00422C42 - 8B 80 F0020000  - mov eax,[eax+000002F0]
+0072B297   | E8 9C79CFFF               | call 0x422C38                                               | 怪物ID 上层call [ecx+0x2F0]
+
+
+
+选中容器对象 ATK_SELECTED_BASE,选中容器,89 4D ?? 6A ?? 6A ?? B9 ?? ?? ?? ?? E8 ?? ?? ?? ?? 8B C8,8,4,基址
+
+0071F138 - 89 48 20  - mov [eax+20],ecx
+
+004F2638   | 6A 01                     | push 0x1                                                    | 固定值
+004F263A   | FF75 F4                   | push dword ptr ss:[ebp-0xC]                                 | 要选的的周围对象
+004F263D   | 8B4D FC                   | mov ecx,dword ptr ss:[ebp-0x4]                              | 选中容器 [0xA06788+0x14]
+004F2640   | E8 2DC92200               | call 0x71EF72                                               |
+004F2645   | 8B45 F4                   | mov eax,dword ptr ss:[ebp-0xC]                              |
+004F2648   | C9                        | leave                                                       |
+
+

@@ -34,12 +34,7 @@ DWORD player::GetFp()
 	this->fp = *((LPDWORD)(this->PlayBase + PLAY_OFFSET_FP));
 	return this->fp;
 }
-
-DWORD player::GetPotential()
-{
-	this->potential = *((LPDWORD)(this->PlayBase + PLAY_OFFSET_POTENTIAL));
-	return this->potential;
-}
+ 
 
 
 void player::UpdatePos()
@@ -92,22 +87,7 @@ DWORD player::GetLvl()
 
 void player::AddPoint(DWORD pointType)
 {
-	//  004CAFFA | 50 | push eax | ÷«¡¶67  ÃÂ÷ 65
-	//	004CAFFB | B9 400F8400 | mov ecx, neuz.840F40 | 840F40:"hMx"
-	//	004CB000 | E8 404DF6FF | call 0x42FD45 |
-	DWORD local_dw_ADD_POINT_PARAM1 = dw_ADD_POINT_PARAM1;
-	DWORD local_dw_ADD_POINT_CALL = dw_ADD_POINT_CALL;
-	__asm {
-
-		pushad
-		pushfd
-		push pointType
-		mov ecx, local_dw_ADD_POINT_PARAM1 //B9 ?? ?? ?? ?? E8 ?? ?? ?? ?? 6A 00 8B CE E8 ?? ?? ?? ?? 5E C3 6A 04 
-		mov eax, local_dw_ADD_POINT_CALL //E8 ?? ?? ?? ?? 6A 00 8B CE E8 ?? ?? ?? ?? 5E C3 6A 04 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 8B F1 89 75 F0 E8 ?? ?? ?? ?? 83 65 FC 00 
-		call eax
-		popfd
-		popad
-	}
+ 
 
 }
 

@@ -48,19 +48,19 @@ void SignaturesDataSingleton::InitSignatureDataAddr()
 	sct.InitModuleTextSize();
 	PVOID64 ADDR_RET;
 	DWORD addr;
-	for (auto signature : mapSignatureDesc)
-	{
-		ADDR_RET = sct.Search(signature.second);
-		addr = *(PDWORD)ADDR_RET;
-		if (signature.first.find("CALL") != std::string::npos)
-		{
-			addr = addr + (DWORD)ADDR_RET + 4;
-			mapSignatureValue.insert(std::make_pair(signature.first, addr));
-		}
-		else {
-			mapSignatureValue.insert(std::make_pair(signature.first, addr));
-		}
-	}
+	//for (auto signature : mapSignatureDesc)
+	//{
+	//	ADDR_RET = sct.Search(signature.second);
+	//	addr = *(PDWORD)ADDR_RET;
+	//	if (signature.first.find("CALL") != std::string::npos)
+	//	{
+	//		addr = addr + (DWORD)ADDR_RET + 4;
+	//		mapSignatureValue.insert(std::make_pair(signature.first, addr));
+	//	}
+	//	else {
+	//		mapSignatureValue.insert(std::make_pair(signature.first, addr));
+	//	}
+	//}
 }
 
 SignaturesDataSingleton::SignaturesDataSingleton()
